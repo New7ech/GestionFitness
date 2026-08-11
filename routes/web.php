@@ -1,13 +1,9 @@
 <?php
 
 use App\Http\Controllers\AccueilController;
-use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\ChallengeController;
-use App\Http\Controllers\EmplacementController;
 use App\Http\Controllers\FactureController;
-use App\Http\Controllers\FournisseurController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MesureController;
 use App\Http\Controllers\NotificationController;
@@ -63,11 +59,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/recus/{recu}', [RecuController::class, 'show'])->name('recus.show');
     Route::get('/recus/{recu}/pdf', [RecuController::class, 'pdf'])->name('recus.pdf');
 
-    // Catalogue & Stock
-    Route::resource('articles', ArticleController::class);
-    Route::resource('categories', CategorieController::class);
-    Route::resource('emplacements', EmplacementController::class);
-    Route::resource('fournisseurs', FournisseurController::class);
 
     // Facturation
     Route::resource('factures', FactureController::class);
