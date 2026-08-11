@@ -1,0 +1,61 @@
+/* Correction simple et propre pour les page-header */
+
+/* S'assurer que les page-header sont visibles sans déformer le layout */
+.page-header {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.page-header h3 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.breadcrumbs {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    align-items: center;
+}
+
+.breadcrumbs li {
+    display: inline-flex !important;
+    align-items: center;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.breadcrumbs li a {
+    color: #667eea;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.breadcrumbs li a:hover {
+    color: #764ba2;
+}
+
+.breadcrumbs .separator {
+    margin: 0 8px;
+    color: #adb5bd;
+}
+
+.breadcrumbs .nav-home i {
+    font-size: 1rem;
+}
+
+/* Responsive minimaliste */
+@media (max-width: 991px) {
+    .breadcrumbs {
+        flex-wrap: wrap;
+    }
+    
+    .breadcrumbs li {
+        margin-bottom: 5px;
+    }
+}
