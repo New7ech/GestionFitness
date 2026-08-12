@@ -2,85 +2,95 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Article;
-use App\Models\Categorie;
-use App\Models\Facture;
+use App\Enums\ChallengeStatus;
+use App\Enums\PaymentStatus;
+use App\Models\Challenge;
+use App\Models\ChallengeType;
+use App\Models\Mesure;
+use App\Models\Paiement;
+use App\Models\Participante;
+use App\Models\Presence;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class StatistiqueController extends Controller
 {
     public function index(): View
     {
-        // 1. totalArticlesInStock
-        $totalArticlesInStock = Article::sum('quantite');
+        $since30Days = Carbon::now()->subDays(30);
 
-        // 2. articlesPerCategory
-        $categories = Categorie::withCount('articles')->get();
-        $articlesPerCategoryLabels = $categories->pluck('name')->toArray();
-        $articlesPerCategoryData = $categories->pluck('articles_count')->toArray();
+        $totalParticipantesActives = Participante::query()->where('status', 'active')->count();
+        $totalRevenus30Jours       = (float) Paiement::query()
+            ->where('payment_date', '>=', $since30Days)
+            ->sum('amount');
 
-        // 3. lowStockArticles
-        $lowStockThreshold = Facture::LOW_STOCK_THRESHOLD;
-        $lowStockArticles = Article::where('quantite', '<=', $lowStockThreshold)
-                                   ->select('name', 'quantite')
-                                   ->orderBy('quantite', 'asc')
-                                   ->get();
-
-        // 4. totalSalesRevenueLast30Days
-        $totalSalesRevenueLast30Days = Facture::where('date_facture', '>=', Carbon::now()->subDays(30))
-                                              ->sum('montant_ttc');
-
-        // 5. salesTrendLast30Days
-        $salesTrendRaw = Facture::select(
-                DB::raw('DATE(date_facture) as date'),
-                DB::raw('SUM(montant_ttc) as total_sales')
-            )
-            ->where('date_facture', '>=', Carbon::now()->subDays(30))
-            ->groupBy('date')
-            ->orderBy('date', 'asc')
+        $challengeTypes = ChallengeType::query()
+            ->withCount('challenges')
+            ->orderByDesc('challenges_count')
             ->get();
 
-        $salesTrendLabels = [];
-        $salesTrendData = [];
-        // Initialize with all dates in the last 30 days to ensure continuity in the chart
-        $period = Carbon::now()->subDays(29); // Start from 29 days ago to include today
+        $challengesParTypeLabels = $challengeTypes->pluck('label')->toArray();
+        $challengesParTypeData   = $challengeTypes->pluck('challenges_count')->toArray();
+
+        $paiementsTrendRaw = Paiement::query()
+            ->select(DB::raw('DATE(payment_date) as date'), DB::raw('SUM(amount) as total'))
+            ->where('payment_date', '>=', $since30Days)
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        $paiementsTrendLabels = [];
+        $paiementsTrendData   = [];
+        $period               = Carbon::now()->subDays(29);
+
         for ($i = 0; $i < 30; $i++) {
-            $dateStr = $period->format('Y-m-d');
-            $salesTrendLabels[] = $period->format('d/m'); // Format for display
-            $salesDataForDate = $salesTrendRaw->firstWhere('date', $dateStr);
-            $salesTrendData[] = $salesDataForDate ? $salesDataForDate->total_sales : 0;
+            $dateStr                = $period->format('Y-m-d');
+            $paiementsTrendLabels[] = $period->format('d/m');
+            $row                    = $paiementsTrendRaw->firstWhere('date', $dateStr);
+            $paiementsTrendData[]   = $row ? (float) $row->total : 0.0;
             $period->addDay();
         }
 
-
-        // 6. bestSellingArticlesLast30Days
-        $bestSellingArticlesRaw = DB::table('article_facture')
-            ->select('articles.name', DB::raw('SUM(article_facture.quantite) as total_quantity_sold'))
-            ->join('articles', 'article_facture.article_id', '=', 'articles.id')
-            ->join('factures', 'article_facture.facture_id', '=', 'factures.id')
-            ->where('factures.date_facture', '>=', Carbon::now()->subDays(30))
-            ->groupBy('articles.id', 'articles.name')
-            ->orderByDesc('total_quantity_sold')
+        $topChallengeTypesRaw = Challenge::query()
+            ->select('challenge_types.label', DB::raw('COUNT(*) as total'))
+            ->join('challenge_types', 'challenges.challenge_type_id', '=', 'challenge_types.id')
+            ->where('challenges.created_at', '>=', $since30Days)
+            ->groupBy('challenge_types.label')
+            ->orderByDesc('total')
             ->limit(5)
             ->get();
-        
-        $bestSellingArticlesLabels = $bestSellingArticlesRaw->pluck('name')->toArray();
-        $bestSellingArticlesData = $bestSellingArticlesRaw->pluck('total_quantity_sold')->toArray();
 
+        $topChallengeTypesLabels = $topChallengeTypesRaw->pluck('label')->toArray();
+        $topChallengeTypesData   = $topChallengeTypesRaw->pluck('total')->map(fn ($v) => (int) $v)->toArray();
+
+        $challengesImpayes = Challenge::query()
+            ->with(['participante', 'challengeType'])
+            ->whereIn('payment_status', [PaymentStatus::Impaye, PaymentStatus::PartiellementPaye])
+            ->whereIn('status', [ChallengeStatus::Planifie, ChallengeStatus::EnCours, ChallengeStatus::Termine])
+            ->orderBy('start_date')
+            ->get();
+
+        $totalPresences30Jours = Presence::query()
+            ->where('attendance_date', '>=', $since30Days)
+            ->count();
+
+        $totalMesures30Jours = Mesure::query()
+            ->where('measured_at', '>=', $since30Days)
+            ->count();
 
         return view('statistiques.index', compact(
-            'totalArticlesInStock',
-            'articlesPerCategoryLabels',
-            'articlesPerCategoryData',
-            'lowStockArticles',
-            'totalSalesRevenueLast30Days',
-            'salesTrendLabels',
-            'salesTrendData',
-            'bestSellingArticlesLabels',
-            'bestSellingArticlesData'
+            'totalParticipantesActives',
+            'totalRevenus30Jours',
+            'challengesParTypeLabels',
+            'challengesParTypeData',
+            'paiementsTrendLabels',
+            'paiementsTrendData',
+            'topChallengeTypesLabels',
+            'topChallengeTypesData',
+            'challengesImpayes',
+            'totalPresences30Jours',
+            'totalMesures30Jours',
         ));
     }
 }

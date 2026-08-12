@@ -1,110 +1,143 @@
 @extends('layouts.app')
 
+@section('title', 'Statistiques Fitness')
+
 @section('contenus')
-<div class="container mt-5">
-    <div class="card">
-        <div class="card-header">
-            <h1 class="card-title mb-0">Statistiques Générales</h1>
+<div class="page-inner">
+    <div class="page-header">
+        <h3 class="fw-bold mb-3">Statistiques Fitness</h3>
+        <ul class="breadcrumbs mb-3">
+            <li class="nav-home"><a href="{{ route('accueil') }}"><i class="icon-home"></i></a></li>
+            <li class="separator"><i class="icon-arrow-right"></i></li>
+            <li class="nav-item"><a href="{{ route('statistiques.index') }}">Statistiques</a></li>
+        </ul>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="numbers text-center">
+                        <p class="card-category">Participantes actives</p>
+                        <h4 class="card-title">{{ $totalParticipantesActives }}</h4>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <!-- Summary Cards Row -->
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Total Articles en Stock</h5>
-                            <p class="card-text fs-2 fw-bold">{{ $totalArticlesInStock }}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Revenu Total (30 derniers jours)</h5>
-                            <p class="card-text fs-2 fw-bold">{{ number_format($totalSalesRevenueLast30Days, 0, ',', ' ') }} FCFA</p>
-                        </div>
+        <div class="col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="numbers text-center">
+                        <p class="card-category">Revenus (30 derniers jours)</p>
+                        <h4 class="card-title">{{ number_format($totalRevenus30Jours, 0, ',', ' ') }} FCFA</h4>
                     </div>
                 </div>
             </div>
-
-            <!-- Charts Row -->
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">Articles par Catégorie</div>
-                        <div class="card-body">
-                            <div style="position: relative; height:350px; width:100%;">
-                                <canvas id="articlesPerCategoryChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">Tendances des Ventes (30 derniers jours)</div>
-                        <div class="card-body">
-                            <div style="position: relative; height:350px; width:100%;">
-                                <canvas id="salesTrendChart"></canvas>
-                            </div>
-                        </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="numbers text-center">
+                        <p class="card-category">Présences (30 jours)</p>
+                        <h4 class="card-title">{{ $totalPresences30Jours }}</h4>
                     </div>
                 </div>
             </div>
-
-            <div class="row mb-4">
-                 <div class="col-md-12"> <!-- Changed to full width for better bar chart display -->
-                    <div class="card">
-                        <div class="card-header">Top 5 Meilleurs Articles Vendus (par quantité, 30j)</div>
-                        <div class="card-body">
-                            <div style="position: relative; height:350px; width:100%;">
-                                <canvas id="bestSellingArticlesChart"></canvas>
-                            </div>
-                        </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="numbers text-center">
+                        <p class="card-category">Mesures (30 jours)</p>
+                        <h4 class="card-title">{{ $totalMesures30Jours }}</h4>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Low Stock Table Row -->
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header">Articles à Stock Faible (Moins de 10 unités)</div>
-                        <div class="card-body">
-                            @if($lowStockArticles->isEmpty())
-                                <p class="text-center text-muted">Aucun article à stock faible pour le moment.</p>
-                            @else
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-hover">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Nom de l'article</th>
-                                                <th class="text-end">Quantité restante</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($lowStockArticles as $article)
-                                            <tr>
-                                                <td>{{ $article->name }}</td>
-                                                <td class="text-end fw-bold {{ $article->quantite < 5 ? 'text-danger' : '' }}">{{ $article->quantite }}</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @endif
-                        </div>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card card-round">
+                <div class="card-header">Répartition des challenges par type</div>
+                <div class="card-body">
+                    <div style="position: relative; height:350px; width:100%;">
+                        <canvas id="challengesParTypeChart"></canvas>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card card-round">
+                <div class="card-header">Tendances des paiements (30 derniers jours)</div>
+                <div class="card-body">
+                    <div style="position: relative; height:350px; width:100%;">
+                        <canvas id="paiementsTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card card-round">
+                <div class="card-header">Top 5 types de challenge (inscriptions, 30 jours)</div>
+                <div class="card-body">
+                    <div style="position: relative; height:350px; width:100%;">
+                        <canvas id="topChallengeTypesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-round">
+                <div class="card-header">Challenges avec solde impayé ou partiel</div>
+                <div class="card-body">
+                    @if($challengesImpayes->isEmpty())
+                        <p class="text-center text-muted mb-0">Aucun challenge en attente de paiement.</p>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Participante</th>
+                                        <th>Type</th>
+                                        <th>Début</th>
+                                        <th>Prix</th>
+                                        <th>Statut paiement</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($challengesImpayes as $challenge)
+                                    <tr>
+                                        <td>{{ $challenge->participante?->full_name ?? '—' }}</td>
+                                        <td>{{ $challenge->challengeType?->label ?? '—' }}</td>
+                                        <td>{{ $challenge->start_date?->format('d/m/Y') ?? '—' }}</td>
+                                        <td>{{ number_format($challenge->price, 0, ',', ' ') }} FCFA</td>
+                                        <td>
+                                            <span class="badge {{ $challenge->payment_status === \App\Enums\PaymentStatus::Impaye ? 'bg-danger' : 'bg-warning text-dark' }}">
+                                                {{ $challenge->payment_status->label() }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Helper function to generate diverse colors
     function generateChartColors(numColors) {
         const baseColors = [
             '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
@@ -117,64 +150,42 @@ document.addEventListener('DOMContentLoaded', function () {
         return colors;
     }
 
-    // Articles per Category (Pie Chart)
-    const articlesPerCategoryLabels = @json($articlesPerCategoryLabels);
-    const articlesPerCategoryData = @json($articlesPerCategoryData);
-    const articlesPerCategoryCanvas = document.getElementById('articlesPerCategoryChart');
-    if (articlesPerCategoryCanvas && articlesPerCategoryLabels.length > 0 && articlesPerCategoryData.length > 0) {
-        const ctxPie = articlesPerCategoryCanvas.getContext('2d');
-        new Chart(ctxPie, {
+    const challengesParTypeLabels = @json($challengesParTypeLabels);
+    const challengesParTypeData = @json($challengesParTypeData);
+    const challengesParTypeCanvas = document.getElementById('challengesParTypeChart');
+
+    if (challengesParTypeCanvas && challengesParTypeLabels.length > 0) {
+        new Chart(challengesParTypeCanvas, {
             type: 'pie',
             data: {
-                labels: articlesPerCategoryLabels,
+                labels: challengesParTypeLabels,
                 datasets: [{
-                    label: 'Articles par Catégorie',
-                    data: articlesPerCategoryData,
-                    backgroundColor: generateChartColors(articlesPerCategoryLabels.length),
+                    label: 'Challenges',
+                    data: challengesParTypeData,
+                    backgroundColor: generateChartColors(challengesParTypeLabels.length),
                     hoverOffset: 4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed !== null) {
-                                    label += context.parsed;
-                                }
-                                return label;
-                            }
-                        }
-                    }
-                }
+                plugins: { legend: { position: 'top' } }
             }
         });
-    } else if (articlesPerCategoryCanvas) {
-        articlesPerCategoryCanvas.getContext('2d').fillText("Aucune donnée disponible pour les catégories d'articles.", 10, 50);
     }
 
-    // Sales Trend (Line Chart)
-    const salesTrendLabels = @json($salesTrendLabels);
-    const salesTrendData = @json($salesTrendData);
-    const salesTrendCanvas = document.getElementById('salesTrendChart');
-    if (salesTrendCanvas && salesTrendLabels.length > 0 && salesTrendData.length > 0) {
-        const ctxLine = salesTrendCanvas.getContext('2d');
-        new Chart(ctxLine, {
+    const paiementsTrendLabels = @json($paiementsTrendLabels);
+    const paiementsTrendData = @json($paiementsTrendData);
+    const paiementsTrendCanvas = document.getElementById('paiementsTrendChart');
+
+    if (paiementsTrendCanvas && paiementsTrendLabels.length > 0) {
+        new Chart(paiementsTrendCanvas, {
             type: 'line',
             data: {
-                labels: salesTrendLabels,
+                labels: paiementsTrendLabels,
                 datasets: [{
-                    label: 'Ventes Journalières (FCFA)',
-                    data: salesTrendData,
+                    label: 'Paiements journaliers (FCFA)',
+                    data: paiementsTrendData,
                     borderColor: 'rgb(75, 192, 192)',
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     fill: true,
@@ -188,46 +199,27 @@ document.addEventListener('DOMContentLoaded', function () {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: function(value) { return value + ' FCFA'; }
-                        }
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed.y !== null) {
-                                    label += new Intl.NumberFormat('fr-FR').format(context.parsed.y) + ' FCFA';
-                                }
-                                return label;
-                            }
+                            callback: function(value) { return value.toLocaleString('fr-FR') + ' FCFA'; }
                         }
                     }
                 }
             }
         });
-    } else if (salesTrendCanvas) {
-        salesTrendCanvas.getContext('2d').fillText("Aucune donnée disponible pour les tendances de ventes.", 10, 50);
     }
 
-    // Best Selling Articles (Bar Chart)
-    const bestSellingArticlesLabels = @json($bestSellingArticlesLabels);
-    const bestSellingArticlesData = @json($bestSellingArticlesData);
-    const bestSellingArticlesCanvas = document.getElementById('bestSellingArticlesChart');
-    if (bestSellingArticlesCanvas && bestSellingArticlesLabels.length > 0 && bestSellingArticlesData.length > 0) {
-        const ctxBar = bestSellingArticlesCanvas.getContext('2d');
-        new Chart(ctxBar, {
+    const topChallengeTypesLabels = @json($topChallengeTypesLabels);
+    const topChallengeTypesData = @json($topChallengeTypesData);
+    const topChallengeTypesCanvas = document.getElementById('topChallengeTypesChart');
+
+    if (topChallengeTypesCanvas && topChallengeTypesLabels.length > 0) {
+        new Chart(topChallengeTypesCanvas, {
             type: 'bar',
             data: {
-                labels: bestSellingArticlesLabels,
+                labels: topChallengeTypesLabels,
                 datasets: [{
-                    label: 'Quantité Vendue',
-                    data: bestSellingArticlesData,
-                    backgroundColor: generateChartColors(bestSellingArticlesLabels.length),
+                    label: 'Inscriptions',
+                    data: topChallengeTypesData,
+                    backgroundColor: generateChartColors(topChallengeTypesLabels.length),
                 }]
             },
             options: {
@@ -236,16 +228,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: {
-                            stepSize: 1 // Ensure integer steps for quantity
-                        }
+                        ticks: { stepSize: 1 }
                     }
                 }
             }
         });
-    } else if (bestSellingArticlesCanvas) {
-        bestSellingArticlesCanvas.getContext('2d').fillText("Aucune donnée disponible pour les meilleurs articles vendus.", 10, 50);
     }
 });
 </script>
+@endpush
 @endsection

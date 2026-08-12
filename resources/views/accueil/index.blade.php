@@ -1,42 +1,35 @@
 @extends('layouts.app')
 
-{{-- Section pour le titre de la page --}}
 @section('title', 'Tableau de Bord')
 
-{{-- Section pour le contenu principal de la page --}}
 @section('contenus')
 
-{{-- En-tête de la page avec titre et fil d'Ariane --}}
 <div class="page-inner">
 <div class="page-header">
-    <h3 class="fw-bold mb-3">Tableau de Bord</h3>
+    <h3 class="fw-bold mb-3">Tableau de Bord Fitness</h3>
     <ul class="breadcrumbs mb-3">
         <li class="nav-home">
             <a href="{{ route('accueil') }}">
                 <i class="icon-home"></i>
             </a>
         </li>
-        {{-- Pas de séparateur ni d'autre item car c'est la page d'accueil --}}
     </ul>
 </div>
 
-{{-- Section des cartes de statistiques rapides --}}
-{{-- Ces variables sont supposées être passées par AccueilController --}}
 <div class="row">
-    {{-- Carte Fournisseurs --}}
     <div class="col-sm-6 col-md-3">
         <div class="card card-stats card-round">
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-icon">
                         <div class="icon-big text-center icon-primary bubble-shadow-small">
-                            <i class="fas fa-truck-loading"></i>
+                            <i class="fas fa-users"></i>
                         </div>
                     </div>
                     <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
-                            <p class="card-category">Fournisseurs</p>
-                            <h4 class="card-title">{{ $nombreFournisseurs ?? 0 }}</h4>
+                            <p class="card-category">Participantes actives</p>
+                            <h4 class="card-title">{{ $nombreParticipantesActives ?? 0 }} <small class="text-muted">/ {{ $nombreParticipantes ?? 0 }}</small></h4>
                         </div>
                     </div>
                 </div>
@@ -44,20 +37,19 @@
         </div>
     </div>
 
-    {{-- Carte Factures (par exemple, total des factures ou factures du mois) --}}
     <div class="col-sm-6 col-md-3">
         <div class="card card-stats card-round">
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-icon">
                         <div class="icon-big text-center icon-info bubble-shadow-small">
-                            <i class="fas fa-file-invoice-dollar"></i>
+                            <i class="fas fa-dumbbell"></i>
                         </div>
                     </div>
                     <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
-                            <p class="card-category">Total Factures</p>
-                            <h4 class="card-title">{{ $nombreFactures ?? 0 }}</h4>
+                            <p class="card-category">Challenges en cours</p>
+                            <h4 class="card-title">{{ $nombreChallengesEnCours ?? 0 }}</h4>
                         </div>
                     </div>
                 </div>
@@ -65,20 +57,19 @@
         </div>
     </div>
 
-    {{-- Carte Chiffre d'Affaires (par exemple, du mois en cours) --}}
     <div class="col-sm-6 col-md-3">
         <div class="card card-stats card-round">
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-icon">
                         <div class="icon-big text-center icon-success bubble-shadow-small">
-                            <i class="fas fa-cash-register"></i>
+                            <i class="fas fa-money-bill-wave"></i>
                         </div>
                     </div>
                     <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
-                            <p class="card-category">CA (Mois en cours)</p>
-                            <h4 class="card-title">{{ number_format($chiffreAffairesMoisCourant ?? 0, 0, ',', ' ') }} FCFA</h4>
+                            <p class="card-category">Revenus (mois en cours)</p>
+                            <h4 class="card-title">{{ number_format($revenusMoisCourant ?? 0, 0, ',', ' ') }} FCFA</h4>
                         </div>
                     </div>
                 </div>
@@ -86,20 +77,19 @@
         </div>
     </div>
 
-    {{-- Carte Articles en Alerte Stock --}}
     <div class="col-sm-6 col-md-3">
         <div class="card card-stats card-round">
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-icon">
-                        <div class="icon-big text-center icon-danger bubble-shadow-small"> {{-- icon-danger pour alerte --}}
+                        <div class="icon-big text-center icon-danger bubble-shadow-small">
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
                     </div>
                     <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
-                            <p class="card-category">Articles Stock Faible</p>
-                            <h4 class="card-title">{{ $articlesEnAlerteStock ?? 0 }}</h4>
+                            <p class="card-category">Paiements en attente</p>
+                            <h4 class="card-title">{{ $challengesImpayes ?? 0 }}</h4>
                         </div>
                     </div>
                 </div>
@@ -108,71 +98,62 @@
     </div>
 </div>
 
-{{-- Section des graphiques --}}
 <div class="row">
-    {{-- Graphique des Ventes (par exemple, sur les 7 derniers jours ou mensuelles) --}}
     <div class="col-md-8">
         <div class="card card-round">
             <div class="card-header">
                 <div class="card-head-row">
-                    <div class="card-title">Tendances des Ventes (7 derniers jours)</div>
+                    <div class="card-title">Paiements encaissés (7 derniers jours)</div>
                 </div>
             </div>
             <div class="card-body">
                 <div class="chart-container" style="height: 350px">
-                    <canvas id="ventesJournalieresChart"></canvas>
+                    <canvas id="paiementsJournaliersChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- Graphique des Articles par Catégorie (Donut) --}}
     <div class="col-md-4">
         <div class="card card-round">
             <div class="card-header">
-                <div class="card-title">Répartition des Articles par Catégorie</div>
+                <div class="card-title">Challenges par type</div>
             </div>
             <div class="card-body">
-                 <div class="chart-container" style="height: 350px">
-                    <canvas id="articlesParCategorieChart"></canvas>
+                <div class="chart-container" style="height: 350px">
+                    <canvas id="challengesParTypeChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-{{-- Section pour d'autres informations, par exemple, dernières activités ou articles à stock faible --}}
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-6">
         <div class="card card-round">
             <div class="card-header">
-                <h4 class="card-title">Articles Récemment Modifiés ou Ajoutés (Top 5)</h4>
-                 <div class="card-category">
-                    Suivi des dernières modifications dans le stock.
-                  </div>
+                <h4 class="card-title">Participantes récemment inscrites</h4>
             </div>
             <div class="card-body">
-                @if(isset($articlesRecents) && $articlesRecents->isNotEmpty())
+                @if($participantesRecentes->isNotEmpty())
                     <div class="table-responsive">
                         <table class="table table-striped table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Nom de l'article</th>
-                                    <th>Catégorie</th>
-                                    <th class="text-end">Quantité</th>
-                                    <th class="text-center">Dernière MàJ</th>
+                                    <th>Nom</th>
+                                    <th>Téléphone</th>
+                                    <th>Inscription</th>
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($articlesRecents as $article)
+                                @foreach($participantesRecentes as $participante)
                                 <tr>
-                                    <td>{{ $article->name }}</td>
-                                    <td>{{ $article->categorie->name ?? 'N/A' }}</td>
-                                    <td class="text-end fw-bold {{ $article->quantite <= ($seuilStockFaible ?? 5) ? 'text-danger' : '' }}">{{ $article->quantite }}</td>
-                                    <td class="text-center">{{ $article->updated_at->diffForHumans() }}</td>
+                                    <td>{{ $participante->full_name }}</td>
+                                    <td>{{ $participante->phone ?? '—' }}</td>
+                                    <td>{{ $participante->registration_date?->format('d/m/Y') ?? '—' }}</td>
                                     <td class="text-center">
-                                        <a href="{{ route('articles.show', $article->id) }}" class="btn btn-info btn-sm" data-bs-toggle="tooltip" title="Voir Détails">
+                                        <a href="{{ route('participantes.show', $participante) }}" class="btn btn-info btn-sm" title="Voir la fiche">
                                             <i class="fa fa-eye"></i>
                                         </a>
                                     </td>
@@ -182,24 +163,107 @@
                         </table>
                     </div>
                 @else
-                    <p class="text-center text-muted">Aucune activité récente sur les articles.</p>
+                    <p class="text-center text-muted mb-0">Aucune participante inscrite pour le moment.</p>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card card-round">
+            <div class="card-header">
+                <h4 class="card-title">Challenges récents</h4>
+                <div class="card-category">Derniers programmes ouverts</div>
+            </div>
+            <div class="card-body">
+                @if($challengesRecents->isNotEmpty())
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Participante</th>
+                                    <th>Type</th>
+                                    <th>Statut</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($challengesRecents as $challenge)
+                                <tr>
+                                    <td>{{ $challenge->participante?->full_name ?? '—' }}</td>
+                                    <td>{{ $challenge->challengeType?->label ?? '—' }}</td>
+                                    <td><span class="badge bg-secondary">{{ $challenge->status->label() }}</span></td>
+                                    <td class="text-center">
+                                        <a href="{{ route('challenges.show', $challenge) }}" class="btn btn-info btn-sm" title="Voir le challenge">
+                                            <i class="fa fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="text-center text-muted mb-0">Aucun challenge enregistré.</p>
                 @endif
             </div>
         </div>
     </div>
 </div>
+
+@if($challengesImpayesList->isNotEmpty())
+<div class="row">
+    <div class="col-md-12">
+        <div class="card card-round">
+            <div class="card-header">
+                <h4 class="card-title">Challenges avec solde impayé ou partiel</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Participante</th>
+                                <th>Type</th>
+                                <th>Prix</th>
+                                <th>Statut paiement</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($challengesImpayesList as $challenge)
+                            <tr>
+                                <td>{{ $challenge->participante?->full_name ?? '—' }}</td>
+                                <td>{{ $challenge->challengeType?->label ?? '—' }}</td>
+                                <td>{{ number_format($challenge->price, 0, ',', ' ') }} FCFA</td>
+                                <td>
+                                    <span class="badge {{ $challenge->payment_status === \App\Enums\PaymentStatus::Impaye ? 'bg-danger' : 'bg-warning text-dark' }}">
+                                        {{ $challenge->payment_status->label() }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <a href="{{ route('challenges.show', $challenge) }}" class="btn btn-warning btn-sm" title="Voir le challenge">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 </div>
 
 @endsection
 
 @push('scripts')
-{{-- Chart.js est déjà inclus globalement via layouts.app.blade.php --}}
-{{-- S'il ne l'est pas, décommentez la ligne ci-dessous ou ajoutez-la au layout principal --}}
-{{-- <script src="{{ asset('assets/js/plugin/chart.js/chart.min.js') }}"></script> --}}
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Fonction pour générer des couleurs pour les graphiques
     function generateColors(numColors) {
         const baseColors = ["#5793ff", "#ff6384", "#36a2eb", "#ffce56", "#4bc0c0", "#9966ff", "#ff9f40", "#E7E9ED"];
         let colors = [];
@@ -209,21 +273,19 @@ document.addEventListener('DOMContentLoaded', function() {
         return colors;
     }
 
-    // Graphique des Ventes Journalières (Line Chart)
-    // Vérifie si les variables Blade existent et sont des objets avant de les utiliser
-    const ventesJournalieresCtx = document.getElementById('ventesJournalieresChart');
-    const ventesJournalieresLabels = typeof @json($ventesJournalieres['labels'] ?? null) === 'object' ? @json($ventesJournalieres['labels'] ?? []) : [];
-    const ventesJournalieresData = typeof @json($ventesJournalieres['data'] ?? null) === 'object' ? @json($ventesJournalieres['data'] ?? []) : [];
+    const paiementsCtx = document.getElementById('paiementsJournaliersChart');
+    const paiementsLabels = @json($paiementsJournaliers['labels'] ?? []);
+    const paiementsData = @json($paiementsJournaliers['data'] ?? []);
 
-    if (ventesJournalieresCtx && ventesJournalieresLabels.length > 0 && ventesJournalieresData.length > 0) {
-        new Chart(ventesJournalieresCtx, {
+    if (paiementsCtx && paiementsLabels.length > 0) {
+        new Chart(paiementsCtx, {
             type: 'line',
             data: {
-                labels: ventesJournalieresLabels,
+                labels: paiementsLabels,
                 datasets: [{
-                    label: 'Ventes (FCFA)',
-                    data: ventesJournalieresData,
-                    borderColor: '#177dff', // Couleur primaire KaiAdmin
+                    label: 'Paiements (FCFA)',
+                    data: paiementsData,
+                    borderColor: '#177dff',
                     backgroundColor: 'rgba(23, 125, 255, 0.2)',
                     fill: true,
                     tension: 0.3,
@@ -251,33 +313,31 @@ document.addEventListener('DOMContentLoaded', function() {
                             callback: function(value) { return value.toLocaleString('fr-FR') + ' FCFA'; }
                         }
                     },
-                    x: {
-                        grid: { display: false }
-                    }
+                    x: { grid: { display: false } }
                 }
             }
         });
-    } else if(ventesJournalieresCtx) {
-        const ctx = ventesJournalieresCtx.getContext('2d');
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '16px Public Sans';
-        ctx.fillText('Pas de données de ventes récentes.', ventesJournalieresCtx.width / 2, ventesJournalieresCtx.height / 2);
+    } else if (paiementsCtx) {
+        const ctx = paiementsCtx.getContext('2d');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = '16px Public Sans';
+        ctx.fillText('Pas de paiements récents.', paiementsCtx.width / 2, paiementsCtx.height / 2);
     }
 
+    const challengesCtx = document.getElementById('challengesParTypeChart');
+    const challengesLabels = @json($challengesParType['labels'] ?? []);
+    const challengesData = @json($challengesParType['data'] ?? []);
 
-    // Graphique Articles par Catégorie (Doughnut Chart)
-    const articlesParCategorieCtx = document.getElementById('articlesParCategorieChart');
-    const articlesLabels = typeof @json($articlesParCategorieLabels ?? null) === 'object' ? @json($articlesParCategorieLabels ?? []) : [];
-    const articlesData = typeof @json($articlesParCategorieData ?? null) === 'object' ? @json($articlesParCategorieData ?? []) : [];
-
-    if (articlesParCategorieCtx && articlesLabels.length > 0 && articlesData.length > 0) {
-         new Chart(articlesParCategorieCtx, {
+    if (challengesCtx && challengesLabels.length > 0) {
+        new Chart(challengesCtx, {
             type: 'doughnut',
             data: {
-                labels: articlesLabels,
+                labels: challengesLabels,
                 datasets: [{
-                    label: 'Articles',
-                    data: articlesData,
-                    backgroundColor: generateColors(articlesLabels.length),
+                    label: 'Challenges',
+                    data: challengesData,
+                    backgroundColor: generateColors(challengesLabels.length),
                     hoverOffset: 6,
                     borderWidth: 2
                 }]
@@ -288,34 +348,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 plugins: {
                     legend: {
                         position: 'bottom',
-                         labels: { padding: 15, boxWidth: 12, font: {size: 10} }
-                    },
-                    tooltip: {
-                         callbacks: {
-                            label: function(context) {
-                                let label = context.label || '';
-                                if (label) { label += ': '; }
-                                if (context.parsed !== null) {
-                                    label += context.parsed + ' article(s)';
-                                }
-                                return label;
-                            }
-                        }
+                        labels: { padding: 15, boxWidth: 12, font: { size: 10 } }
                     }
                 }
             }
         });
-    } else if (articlesParCategorieCtx) {
-        const ctx = articlesParCategorieCtx.getContext('2d');
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '16px Public Sans';
-        ctx.fillText('Pas de données de catégorie.', articlesParCategorieCtx.width / 2, articlesParCategorieCtx.height / 2);
+    } else if (challengesCtx) {
+        const ctx = challengesCtx.getContext('2d');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = '16px Public Sans';
+        ctx.fillText('Pas de données par type.', challengesCtx.width / 2, challengesCtx.height / 2);
     }
-
-    // Initialisation des tooltips Bootstrap
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    })
 });
 </script>
 @endpush
