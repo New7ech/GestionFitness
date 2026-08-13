@@ -15,7 +15,7 @@ class Mesure extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'challenge_id',
+        'inscription_id',
         'measured_at',
         'stage',
         'weight',
@@ -34,9 +34,9 @@ class Mesure extends Model
         ];
     }
 
-    public function challenge(): BelongsTo
+    public function inscription(): BelongsTo
     {
-        return $this->belongsTo(Challenge::class);
+        return $this->belongsTo(Inscription::class);
     }
 
     public function values(): HasMany

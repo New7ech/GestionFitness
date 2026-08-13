@@ -15,7 +15,7 @@ class RecuService
     {
         return DB::transaction(function () use ($paiement, $generatedBy): Recu {
             $lockedPayment = Paiement::query()
-                ->with(['challenge.participante', 'challenge.challengeType', 'recordedBy'])
+                ->with(['inscription.participante', 'inscription.challenge.challengeType', 'recordedBy'])
                 ->whereKey($paiement->id)
                 ->lockForUpdate()
                 ->firstOrFail();
@@ -25,25 +25,26 @@ class RecuService
                 ->first();
 
             if ($existing) {
-                return $existing->load('paiement.challenge.participante', 'paiement.challenge.challengeType');
+                return $existing->load('paiement.inscription.participante', 'paiement.inscription.challenge.challengeType');
             }
 
-            $challenge = $lockedPayment->challenge;
+            $inscription = $lockedPayment->inscription;
+            $challenge = $inscription->challenge;
             $generator = User::query()->find($generatedBy);
 
             return Recu::query()->create([
                 'payment_id' => $lockedPayment->id,
                 'receipt_number' => $this->generateReceiptNumber(),
                 'issued_at' => now(),
-                'participante_full_name' => $challenge->participante->full_name,
+                'participante_full_name' => $inscription->participante->full_name,
                 'challenge_type_label' => $challenge->challengeType->label,
                 'challenge_duration_days' => $challenge->duration_days,
                 'amount_paid' => $lockedPayment->amount,
-                'amount_remaining' => $this->paymentService->remainingAmount($challenge),
+                'amount_remaining' => $this->paymentService->remainingAmount($inscription),
                 'payment_mode' => $lockedPayment->payment_mode->label(),
                 'issued_by_name' => $generator?->name,
                 'generated_by' => $generatedBy,
-            ])->load('paiement.challenge.participante', 'paiement.challenge.challengeType');
+            ])->load('paiement.inscription.participante', 'paiement.inscription.challenge.challengeType');
         });
     }
 
@@ -53,7 +54,7 @@ class RecuService
     public function buildPdfPayload(Recu $recu): array
     {
         return [
-            'recu' => $recu->loadMissing('paiement.challenge.participante', 'paiement.challenge.challengeType', 'generatedBy'),
+            'recu' => $recu->loadMissing('paiement.inscription.participante', 'paiement.inscription.challenge.challengeType', 'generatedBy'),
         ];
     }
 

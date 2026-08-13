@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\AttendanceStatus;
 use App\Http\Requests\StorePresenceRequest;
 use App\Http\Requests\UpdatePresenceRequest;
-use App\Models\Challenge;
+use App\Models\Inscription;
 use App\Models\Presence;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -18,14 +18,14 @@ class PresenceController extends Controller
         $this->authorize('viewAny', Presence::class);
 
         $presences = Presence::query()
-            ->with(['challenge.participante', 'challenge.challengeType', 'recordedBy', 'updatedBy'])
-            ->when($request->filled('challenge_id'), fn ($query) => $query->where('challenge_id', $request->input('challenge_id')))
+            ->with(['inscription.participante', 'inscription.challenge.challengeType', 'recordedBy', 'updatedBy'])
+            ->when($request->filled('inscription_id'), fn ($query) => $query->where('inscription_id', $request->input('inscription_id')))
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->input('status')))
             ->when($request->filled('date_from'), fn ($query) => $query->whereDate('attendance_date', '>=', $request->input('date_from')))
             ->when($request->filled('date_to'), fn ($query) => $query->whereDate('attendance_date', '<=', $request->input('date_to')))
             ->when($request->filled('q'), function ($query) use ($request): void {
                 $term = $request->string('q')->toString();
-                $query->whereHas('challenge.participante', function ($nestedQuery) use ($term): void {
+                $query->whereHas('inscription.participante', function ($nestedQuery) use ($term): void {
                     $nestedQuery
                         ->where('first_name', 'like', "%{$term}%")
                         ->orWhere('last_name', 'like', "%{$term}%")
@@ -48,7 +48,7 @@ class PresenceController extends Controller
         $this->authorize('create', Presence::class);
 
         return view('presences.create', $this->formData(new Presence([
-            'challenge_id' => $request->integer('challenge_id') ?: null,
+            'inscription_id' => $request->integer('inscription_id') ?: null,
             'attendance_date' => now()->toDateString(),
             'status' => AttendanceStatus::Presente,
         ])));
@@ -73,7 +73,7 @@ class PresenceController extends Controller
     {
         $this->authorize('view', $presence);
 
-        $presence->load(['challenge.participante', 'challenge.challengeType', 'recordedBy', 'updatedBy']);
+        $presence->load(['inscription.participante', 'inscription.challenge.challengeType', 'recordedBy', 'updatedBy']);
 
         return view('presences.show', compact('presence'));
     }
@@ -82,10 +82,10 @@ class PresenceController extends Controller
     {
         $this->authorize('update', $presence);
 
-        $presence->load(['challenge.participante', 'challenge.challengeType']);
+        $presence->load(['inscription.participante', 'inscription.challenge.challengeType']);
 
         return view('presences.edit', $this->formData($presence) + [
-            'lockedChallenge' => true,
+            'lockedInscription' => true,
         ]);
     }
 
@@ -95,7 +95,7 @@ class PresenceController extends Controller
 
         $data = $request->validated();
         $data['updated_by'] = $request->user()->id;
-        unset($data['challenge_id']);
+        unset($data['inscription_id']);
 
         $presence->update($data);
 
@@ -108,12 +108,12 @@ class PresenceController extends Controller
     {
         return [
             'presence' => $presence,
-            'challenges' => Challenge::query()
-                ->with(['participante', 'challengeType'])
+            'inscriptions' => Inscription::query()
+                ->with(['participante', 'challenge.challengeType'])
                 ->latest()
                 ->get(),
             'statuses' => AttendanceStatus::cases(),
-            'lockedChallenge' => false,
+            'lockedInscription' => false,
         ];
     }
 }

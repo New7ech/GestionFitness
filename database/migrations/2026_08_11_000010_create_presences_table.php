@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('presences', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('challenge_id')->constrained('challenges');
+            $table->foreignId('inscription_id')->constrained('inscriptions');
             $table->date('attendance_date');
             $table->string('status', 30);
             $table->text('comment')->nullable();
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->unique(['challenge_id', 'attendance_date']);
+            $table->unique(['inscription_id', 'attendance_date']);
         });
     }
 

@@ -22,8 +22,8 @@ class UpdateMesureRequest extends StoreMesureRequest
                 return;
             }
 
-            if ((int) $this->input('challenge_id') !== (int) $mesure->challenge_id) {
-                $validator->errors()->add('challenge_id', 'La correction doit rester rattachée au challenge d’origine.');
+            if ((int) $this->input('inscription_id') !== (int) $mesure->inscription_id) {
+                $validator->errors()->add('inscription_id', 'La correction doit rester rattachée à l\'inscription d\'origine.');
             }
         });
     }

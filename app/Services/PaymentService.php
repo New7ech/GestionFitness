@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Enums\InscriptionStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
 use App\Models\Challenge;
+use App\Models\Inscription;
 use App\Models\Paiement;
 use Illuminate\Support\Facades\DB;
 
@@ -13,8 +15,8 @@ class PaymentService
     public function create(array $validated, int $recordedBy): Paiement
     {
         return DB::transaction(function () use ($validated, $recordedBy): Paiement {
-            $challenge = Challenge::query()
-                ->whereKey($validated['challenge_id'])
+            $inscription = Inscription::query()
+                ->whereKey($validated['inscription_id'])
                 ->lockForUpdate()
                 ->firstOrFail();
 
@@ -22,18 +24,18 @@ class PaymentService
                 'recorded_by' => $recordedBy,
             ]);
 
-            $this->recalculateStatus($challenge);
+            $this->recalculateStatus($inscription);
 
-            return $paiement->fresh(['challenge.participante', 'challenge.challengeType']);
+            return $paiement->fresh(['inscription.participante', 'inscription.challenge.challengeType']);
         });
     }
 
     public function update(Paiement $paiement, array $validated, int $recordedBy): Paiement
     {
         return DB::transaction(function () use ($paiement, $validated, $recordedBy): Paiement {
-            $oldChallengeId = $paiement->challenge_id;
-            $challenge = Challenge::query()
-                ->whereKey($validated['challenge_id'])
+            $oldInscriptionId = $paiement->inscription_id;
+            $inscription = Inscription::query()
+                ->whereKey($validated['inscription_id'])
                 ->lockForUpdate()
                 ->firstOrFail();
 
@@ -41,37 +43,37 @@ class PaymentService
                 'recorded_by' => $recordedBy,
             ]);
 
-            if ((int) $oldChallengeId !== (int) $challenge->id) {
-                $oldChallenge = Challenge::query()->whereKey($oldChallengeId)->lockForUpdate()->first();
+            if ((int) $oldInscriptionId !== (int) $inscription->id) {
+                $oldInscription = Inscription::query()->whereKey($oldInscriptionId)->lockForUpdate()->first();
 
-                if ($oldChallenge) {
-                    $this->recalculateStatus($oldChallenge);
+                if ($oldInscription) {
+                    $this->recalculateStatus($oldInscription);
                 }
             }
 
-            $this->recalculateStatus($challenge);
+            $this->recalculateStatus($inscription);
 
-            return $paiement->fresh(['challenge.participante', 'challenge.challengeType']);
+            return $paiement->fresh(['inscription.participante', 'inscription.challenge.challengeType']);
         });
     }
 
     public function delete(Paiement $paiement): void
     {
         DB::transaction(function () use ($paiement): void {
-            $challenge = Challenge::query()
-                ->whereKey($paiement->challenge_id)
+            $inscription = Inscription::query()
+                ->whereKey($paiement->inscription_id)
                 ->lockForUpdate()
                 ->firstOrFail();
 
             $paiement->delete();
-            $this->recalculateStatus($challenge);
+            $this->recalculateStatus($inscription);
         });
     }
 
-    public function recalculateStatus(Challenge $challenge): Challenge
+    public function recalculateStatus(Inscription $inscription): Inscription
     {
-        $totals = $this->totals($challenge);
-        $price = (float) $challenge->price;
+        $totals = $this->totals($inscription);
+        $price = (float) $inscription->price;
 
         $status = match (true) {
             $totals['refunds'] > 0 && $totals['payments'] >= $price && $totals['net'] < $price => PaymentStatus::Rembourse,
@@ -80,32 +82,32 @@ class PaymentService
             default => PaymentStatus::Impaye,
         };
 
-        $challenge->forceFill(['payment_status' => $status])->save();
+        $inscription->forceFill(['payment_status' => $status])->save();
 
-        return $challenge->refresh();
+        return $inscription->refresh();
     }
 
-    public function remainingAmount(Challenge $challenge): float
+    public function remainingAmount(Inscription $inscription): float
     {
-        $remaining = (float) $challenge->price - $this->netPaid($challenge);
+        $remaining = (float) $inscription->price - $this->netPaid($inscription);
 
         return max(0.0, $remaining);
     }
 
-    public function netPaid(Challenge $challenge): float
+    public function netPaid(Inscription $inscription): float
     {
-        return $this->totals($challenge)['net'];
+        return $this->totals($inscription)['net'];
     }
 
     /**
      * @return array{payments: float, refunds: float, net: float}
      */
-    private function totals(Challenge $challenge): array
+    private function totals(Inscription $inscription): array
     {
-        $payments = (float) $challenge->paiements()
+        $payments = (float) $inscription->paiements()
             ->where('type', PaymentType::Paiement->value)
             ->sum('amount');
-        $refunds = (float) $challenge->paiements()
+        $refunds = (float) $inscription->paiements()
             ->where('type', PaymentType::Remboursement->value)
             ->sum('amount');
 

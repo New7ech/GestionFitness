@@ -17,7 +17,7 @@ class UpdatePaiementRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'challenge_id' => ['required', 'exists:challenges,id'],
+            'inscription_id' => ['required', 'exists:inscriptions,id'],
             'amount' => ['required', 'numeric', 'min:0.01'],
             'type' => ['required', Rule::enum(PaymentType::class)],
             'payment_date' => ['required', 'date'],
@@ -29,8 +29,8 @@ class UpdatePaiementRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'challenge_id.required' => 'Le challenge est obligatoire.',
-            'challenge_id.exists' => 'Le challenge sélectionné est invalide.',
+            'inscription_id.required' => 'L\'inscription est obligatoire.',
+            'inscription_id.exists' => 'L\'inscription sélectionnée est invalide.',
             'amount.required' => 'Le montant est obligatoire.',
             'amount.numeric' => 'Le montant doit être un nombre.',
             'amount.min' => 'Le montant doit être strictement positif.',

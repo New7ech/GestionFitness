@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\AccueilController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\ChallengeController;
+use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MesureController;
 use App\Http\Controllers\NotificationController;

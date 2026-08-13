@@ -135,19 +135,25 @@ docker compose exec app composer install
 
 ---
 
-## 13. Règles métier (résumé — détail complet dans `02-PROMPT-CODEX.md`)
+## 13. Règles métier (résumé — détail complet dans `03-PROMPT-CURSOR-CORRECTIONS.md`)
 
-- Une participante peut avoir plusieurs challenges au fil du temps ; tout ce qui est daté (paiements, présences, mesures, médias, bilan) est rattaché au **challenge**, jamais directement à la participante.
+> **Mise à jour de modèle (v2)** : `Challenge` représente désormais une **session/offre** (type, dates, capacité optionnelle, statut), créée **indépendamment et avant** toute participante. `Inscription` est l'entité qui relie une **participante** à **un challenge donné** (réservation d'une place) — c'est elle qui porte l'objectif, le tarif, le statut de paiement, et c'est elle que référencent paiements, mesures, présences et médias. Une participante peut avoir plusieurs `Inscription` au fil du temps (historique, renouvellements) ; un `Challenge` peut avoir plusieurs `Inscription` (plusieurs participantes dans la même session, dans la limite de sa capacité si elle est définie).
+
+- Un `Challenge` (session) est créé **avant** toute participante — jamais l'inverse.
+- Inscrire une participante = créer une `Inscription` qui référence une participante **et** un `Challenge` existant (`planifie` ou `en_cours`), en vérifiant la capacité disponible si elle est définie (avertissement, pas de blocage strict).
+- Le « renouvellement » d'une participante = une nouvelle `Inscription` (vers un `Challenge` existant ou nouvellement créé), jamais une modification de l'inscription précédente.
+- Tout ce qui est daté et personnel (paiements, présences, mesures, médias, objectifs, bilan) est rattaché à l'**inscription**, jamais directement à la participante, et jamais au challenge partagé (qui peut concerner plusieurs participantes à la fois).
 - Seules les informations permanentes (identité, antécédents de santé déclarés) vivent sur la fiche participante.
-- `end_date` d'un challenge est **toujours calculée**, jamais saisie manuellement.
-- `payment_status` d'un challenge est **toujours recalculé** à partir de ses paiements, jamais édité manuellement.
+- `challenges.end_date` est **toujours calculée** (start_date + durée), jamais saisie manuellement. Les dates effectives d'une inscription sont toujours celles de son challenge (pas de duplication de dates sur l'inscription).
+- `inscriptions.payment_status` est **toujours recalculé** à partir de ses paiements, jamais édité manuellement.
 - Une mesure existante n'est **jamais écrasée** — historique intégral conservé.
-- Une seule présence par participante (via son challenge) et par date — contrainte base de données.
+- Une seule présence par inscription et par date — contrainte base de données.
 - Chaque paiement, présence, mesure, média enregistre l'utilisateur qui l'a créé/modifié.
 
 ---
 
 ## 14. Fichiers importants
+
 
 | Fichier/dossier | Rôle |
 |---|---|

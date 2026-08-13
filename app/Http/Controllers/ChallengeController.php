@@ -3,16 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ChallengeStatus;
-use App\Enums\AttendanceStatus;
-use App\Enums\MeasurementStage;
-use App\Enums\MediaType;
-use App\Enums\PaymentStatus;
 use App\Http\Requests\StoreChallengeRequest;
 use App\Http\Requests\UpdateChallengeRequest;
 use App\Models\Challenge;
 use App\Models\ChallengeType;
-use App\Models\Participante;
-use App\Services\PaymentService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,26 +14,24 @@ use Illuminate\Validation\Rule;
 
 class ChallengeController extends Controller
 {
-    public function __construct(private readonly PaymentService $paymentService) {}
-
     public function index(Request $request): View
     {
         $this->authorize('viewAny', Challenge::class);
 
         $challenges = Challenge::query()
-            ->with(['participante', 'challengeType'])
+            ->with(['challengeType'])
+            ->withCount(['inscriptions as inscrites_count' => fn ($q) => $q->where('status', '!=', 'annulee')])
             ->when($request->filled('q'), function ($query) use ($request): void {
                 $term = $request->string('q')->toString();
-                $query->whereHas('participante', function ($nestedQuery) use ($term): void {
+                $query->where(function ($nestedQuery) use ($term): void {
                     $nestedQuery
-                        ->where('first_name', 'like', "%{$term}%")
-                        ->orWhere('last_name', 'like', "%{$term}%")
-                        ->orWhere('phone', 'like', "%{$term}%");
+                        ->where('label', 'like', "%{$term}%")
+                        ->orWhereHas('challengeType', fn ($typeQuery) => $typeQuery->where('label', 'like', "%{$term}%"));
                 });
             })
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->input('status')))
             ->when($request->filled('challenge_type_id'), fn ($query) => $query->where('challenge_type_id', $request->input('challenge_type_id')))
-            ->latest()
+            ->orderByDesc('start_date')
             ->paginate(10)
             ->withQueryString();
 
@@ -54,12 +46,14 @@ class ChallengeController extends Controller
     {
         $this->authorize('create', Challenge::class);
 
+        $challengeType = ChallengeType::query()->find($request->integer('challenge_type_id'));
+
         return view('challenges.create', $this->formData(new Challenge([
-            'participante_id' => $request->integer('participante_id') ?: null,
+            'challenge_type_id' => $challengeType?->id,
             'start_date' => now()->toDateString(),
             'duration_days' => config('fitness.durations', [15, 30])[0],
+            'default_price' => $challengeType?->default_price,
             'status' => ChallengeStatus::Planifie,
-            'payment_status' => PaymentStatus::Impaye,
         ])));
     }
 
@@ -68,11 +62,15 @@ class ChallengeController extends Controller
         $this->authorize('create', Challenge::class);
 
         $data = $request->validated();
-        $data['payment_status'] = PaymentStatus::Impaye;
         $data['created_by'] = $request->user()->id;
         $data['updated_by'] = $request->user()->id;
 
         $challenge = Challenge::query()->create($data);
+
+        if ($request->filled('redirect_to')) {
+            return redirect($request->input('redirect_to'))
+                ->with('success', 'Challenge créé avec succès.');
+        }
 
         return redirect()
             ->route('challenges.show', $challenge)
@@ -84,26 +82,18 @@ class ChallengeController extends Controller
         $this->authorize('view', $challenge);
 
         $challenge->load([
-            'participante',
             'challengeType',
             'createdBy',
             'updatedBy',
-            'paiements.recu',
-            'recus',
-            'presences.recordedBy',
-            'presences.updatedBy',
-            'mesures.values.measurementType',
-            'mesures.recordedBy',
-            'mesures.media.uploadedBy',
-            'media.uploadedBy',
+            'inscriptions.participante',
+            'inscriptions' => fn ($query) => $query
+                ->with(['participante'])
+                ->where('status', '!=', 'annulee')
+                ->latest('inscription_date'),
         ]);
 
         return view('challenges.show', [
             'challenge' => $challenge,
-            'remainingAmount' => $this->paymentService->remainingAmount($challenge),
-            'attendanceStatuses' => AttendanceStatus::cases(),
-            'mediaTypes' => MediaType::cases(),
-            'measurementStages' => MeasurementStage::cases(),
         ]);
     }
 
@@ -118,10 +108,10 @@ class ChallengeController extends Controller
     {
         $this->authorize('update', $challenge);
 
-        if ($this->scheduleWillChange($request, $challenge) && $this->hasHistoricalData($challenge) && ! $request->boolean('confirm_schedule_change')) {
+        if ($this->scheduleWillChange($request, $challenge) && $this->hasInscriptions($challenge) && ! $request->boolean('confirm_schedule_change')) {
             return back()
                 ->withInput()
-                ->with('warning', 'Ce challenge contient déjà des paiements, présences ou mesures. Cochez la confirmation pour recalculer la date de fin.');
+                ->with('warning', 'Ce challenge a déjà des inscriptions. Cochez la confirmation pour recalculer la date de fin.');
         }
 
         $data = $request->safe()->except('confirm_schedule_change');
@@ -138,10 +128,10 @@ class ChallengeController extends Controller
     {
         $this->authorize('delete', $challenge);
 
-        if ($this->hasHistoricalData($challenge)) {
+        if ($challenge->inscriptions()->exists()) {
             return redirect()
                 ->route('challenges.index')
-                ->with('error', 'Impossible de supprimer ce challenge car des paiements, présences ou mesures y sont liés.');
+                ->with('error', 'Impossible de supprimer ce challenge car des inscriptions y sont liées.');
         }
 
         $challenge->delete();
@@ -174,7 +164,6 @@ class ChallengeController extends Controller
     {
         return [
             'challenge' => $challenge,
-            'participantes' => Participante::query()->orderBy('last_name')->orderBy('first_name')->get(),
             'challengeTypes' => ChallengeType::query()->where('is_active', true)->orderBy('label')->get(),
             'durations' => config('fitness.durations', [15, 30]),
             'statuses' => ChallengeStatus::cases(),
@@ -187,10 +176,8 @@ class ChallengeController extends Controller
             || (int) $request->input('duration_days') !== (int) $challenge->duration_days;
     }
 
-    private function hasHistoricalData(Challenge $challenge): bool
+    private function hasInscriptions(Challenge $challenge): bool
     {
-        return $challenge->paiements()->exists()
-            || $challenge->presences()->exists()
-            || $challenge->mesures()->exists();
+        return $challenge->inscriptions()->exists();
     }
 }

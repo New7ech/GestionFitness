@@ -21,7 +21,7 @@ class ParticipanteController extends Controller
         $this->authorize('viewAny', Participante::class);
 
         $participantes = Participante::query()
-            ->withCount('challenges')
+            ->withCount('inscriptions')
             ->when($request->filled('q'), function ($query) use ($request): void {
                 $term = $request->string('q')->toString();
                 $query->where(function ($nestedQuery) use ($term): void {
@@ -91,9 +91,9 @@ class ParticipanteController extends Controller
         $this->authorize('view', $participante);
 
         $participante->load([
-            'challenges' => fn ($query) => $query
+            'inscriptions' => fn ($query) => $query
                 ->with([
-                    'challengeType',
+                    'challenge.challengeType',
                     'paiements.recu',
                     'presences.recordedBy',
                     'presences.updatedBy',
@@ -101,7 +101,7 @@ class ParticipanteController extends Controller
                     'mesures.media.uploadedBy',
                     'media.uploadedBy',
                 ])
-                ->latest(),
+                ->latest('inscription_date'),
             'createdBy',
             'updatedBy',
         ]);

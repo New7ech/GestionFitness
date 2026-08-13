@@ -13,7 +13,7 @@ class Presence extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'challenge_id',
+        'inscription_id',
         'attendance_date',
         'status',
         'comment',
@@ -29,9 +29,9 @@ class Presence extends Model
         ];
     }
 
-    public function challenge(): BelongsTo
+    public function inscription(): BelongsTo
     {
-        return $this->belongsTo(Challenge::class);
+        return $this->belongsTo(Inscription::class);
     }
 
     public function recordedBy(): BelongsTo

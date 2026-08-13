@@ -16,25 +16,19 @@ class StoreChallengeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'participante_id' => ['required', 'exists:participantes,id'],
             'challenge_type_id' => ['required', 'exists:challenge_types,id'],
+            'label' => ['nullable', 'string', 'max:255'],
             'start_date' => ['required', 'date'],
             'duration_days' => ['required', 'integer', Rule::in(config('fitness.durations', [15, 30]))],
+            'capacite' => ['nullable', 'integer', 'min:1'],
+            'default_price' => ['nullable', 'numeric', 'min:0.01'],
             'status' => ['required', Rule::enum(ChallengeStatus::class)],
-            'goal_text' => ['nullable', 'string'],
-            'goal_weight' => ['nullable', 'numeric', 'min:0.01'],
-            'goal_waist' => ['nullable', 'numeric', 'min:0.01'],
-            'goal_personal' => ['nullable', 'string'],
-            'observations' => ['nullable', 'string'],
-            'price' => ['required', 'numeric', 'min:0.01'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'participante_id.required' => 'La participante est obligatoire.',
-            'participante_id.exists' => 'La participante sélectionnée est invalide.',
             'challenge_type_id.required' => 'Le type de challenge est obligatoire.',
             'challenge_type_id.exists' => 'Le type de challenge sélectionné est invalide.',
             'start_date.required' => 'La date de début est obligatoire.',
@@ -42,15 +36,12 @@ class StoreChallengeRequest extends FormRequest
             'duration_days.required' => 'La durée est obligatoire.',
             'duration_days.integer' => 'La durée doit être un nombre entier.',
             'duration_days.in' => 'La durée sélectionnée est invalide.',
+            'capacite.integer' => 'La capacité doit être un nombre entier.',
+            'capacite.min' => 'La capacité doit être au moins de 1.',
+            'default_price.numeric' => 'Le tarif par défaut doit être un nombre.',
+            'default_price.min' => 'Le tarif par défaut doit être positif.',
             'status.required' => 'Le statut est obligatoire.',
             'status' => 'Le statut sélectionné est invalide.',
-            'goal_weight.numeric' => 'Le poids objectif doit être un nombre.',
-            'goal_weight.min' => 'Le poids objectif doit être positif.',
-            'goal_waist.numeric' => 'Le tour de taille objectif doit être un nombre.',
-            'goal_waist.min' => 'Le tour de taille objectif doit être positif.',
-            'price.required' => 'Le prix est obligatoire.',
-            'price.numeric' => 'Le prix doit être un nombre.',
-            'price.min' => 'Le prix doit être positif.',
         ];
     }
 }

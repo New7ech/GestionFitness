@@ -3,15 +3,12 @@
 namespace App\Models;
 
 use App\Enums\ChallengeStatus;
-use App\Enums\PaymentStatus;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Challenge extends Model
@@ -19,19 +16,14 @@ class Challenge extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'participante_id',
         'challenge_type_id',
+        'label',
         'start_date',
         'duration_days',
         'end_date',
+        'capacite',
+        'default_price',
         'status',
-        'goal_text',
-        'goal_weight',
-        'goal_waist',
-        'goal_personal',
-        'observations',
-        'price',
-        'payment_status',
         'created_by',
         'updated_by',
     ];
@@ -42,11 +34,9 @@ class Challenge extends Model
             'start_date' => 'date',
             'end_date' => 'date',
             'duration_days' => 'integer',
-            'goal_weight' => 'decimal:2',
-            'goal_waist' => 'decimal:2',
-            'price' => 'decimal:2',
+            'capacite' => 'integer',
+            'default_price' => 'decimal:2',
             'status' => ChallengeStatus::class,
-            'payment_status' => PaymentStatus::class,
         ];
     }
 
@@ -61,9 +51,19 @@ class Challenge extends Model
         });
     }
 
-    public function participante(): BelongsTo
+    protected function placesRestantes(): Attribute
     {
-        return $this->belongsTo(Participante::class);
+        return Attribute::get(function (): ?int {
+            if ($this->capacite === null) {
+                return null;
+            }
+
+            $inscrites = $this->inscriptions()
+                ->where('status', '!=', \App\Enums\InscriptionStatus::Annulee->value)
+                ->count();
+
+            return max(0, $this->capacite - $inscrites);
+        });
     }
 
     public function challengeType(): BelongsTo
@@ -71,53 +71,38 @@ class Challenge extends Model
         return $this->belongsTo(ChallengeType::class);
     }
 
-    public function paiements(): HasMany
+    public function inscriptions(): HasMany
     {
-        return $this->hasMany(Paiement::class);
+        return $this->hasMany(Inscription::class);
     }
 
-    public function mesures(): HasMany
+    public function activeInscriptions(): HasMany
     {
-        return $this->hasMany(Mesure::class);
+        return $this->hasMany(Inscription::class)
+            ->where('status', '!=', \App\Enums\InscriptionStatus::Annulee->value);
     }
 
-    public function presences(): HasMany
+    public function inscritesCount(): int
     {
-        return $this->hasMany(Presence::class);
+        return $this->activeInscriptions()->count();
     }
 
-    public function media(): MorphMany
+    public function isFull(): bool
     {
-        return $this->morphMany(Media::class, 'mediable');
+        if ($this->capacite === null) {
+            return false;
+        }
+
+        return $this->inscritesCount() >= $this->capacite;
     }
 
-    public function commentaires(): MorphMany
+    public function displayLabel(): string
     {
-        return $this->morphMany(Commentaire::class, 'commentable');
-    }
+        if ($this->label) {
+            return $this->label;
+        }
 
-    public function recus(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            Recu::class,
-            Paiement::class,
-            'challenge_id',
-            'payment_id',
-            'id',
-            'id'
-        );
-    }
-
-    public function dernierRecu(): HasOneThrough
-    {
-        return $this->hasOneThrough(
-            Recu::class,
-            Paiement::class,
-            'challenge_id',
-            'payment_id',
-            'id',
-            'id'
-        )->latest('recus.issued_at');
+        return $this->challengeType->label.' — '.$this->start_date->format('d/m/Y');
     }
 
     public function createdBy(): BelongsTo

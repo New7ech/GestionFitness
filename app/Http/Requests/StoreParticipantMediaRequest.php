@@ -46,20 +46,20 @@ class StoreParticipantMediaRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
-            $challenge = $this->route('challenge');
+            $inscription = $this->route('inscription');
             $mesureId = $this->input('mesure_id');
 
-            if (! $challenge || ! $mesureId) {
+            if (! $inscription || ! $mesureId) {
                 return;
             }
 
-            $belongsToChallenge = Mesure::query()
+            $belongsToInscription = Mesure::query()
                 ->whereKey($mesureId)
-                ->where('challenge_id', $challenge->id)
+                ->where('inscription_id', $inscription->id)
                 ->exists();
 
-            if (! $belongsToChallenge) {
-                $validator->errors()->add('mesure_id', 'La mesure sélectionnée ne correspond pas à ce challenge.');
+            if (! $belongsToInscription) {
+                $validator->errors()->add('mesure_id', 'La mesure sélectionnée ne correspond pas à cette inscription.');
             }
         });
     }

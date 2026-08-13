@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\MeasurementStage;
 use App\Http\Requests\StoreMesureRequest;
 use App\Http\Requests\UpdateMesureRequest;
-use App\Models\Challenge;
+use App\Models\Inscription;
 use App\Models\MeasurementType;
 use App\Models\Mesure;
 use App\Services\MesureService;
@@ -22,12 +22,12 @@ class MesureController extends Controller
         $this->authorize('viewAny', Mesure::class);
 
         $mesures = Mesure::query()
-            ->with(['challenge.participante', 'challenge.challengeType', 'values.measurementType', 'recordedBy'])
-            ->when($request->filled('challenge_id'), fn ($query) => $query->where('challenge_id', $request->input('challenge_id')))
+            ->with(['inscription.participante', 'inscription.challenge.challengeType', 'values.measurementType', 'recordedBy'])
+            ->when($request->filled('inscription_id'), fn ($query) => $query->where('inscription_id', $request->input('inscription_id')))
             ->when($request->filled('stage'), fn ($query) => $query->where('stage', $request->input('stage')))
             ->when($request->filled('q'), function ($query) use ($request): void {
                 $term = $request->string('q')->toString();
-                $query->whereHas('challenge.participante', function ($nestedQuery) use ($term): void {
+                $query->whereHas('inscription.participante', function ($nestedQuery) use ($term): void {
                     $nestedQuery
                         ->where('first_name', 'like', "%{$term}%")
                         ->orWhere('last_name', 'like', "%{$term}%")
@@ -50,7 +50,7 @@ class MesureController extends Controller
         $this->authorize('create', Mesure::class);
 
         return view('mesures.create', $this->formData(new Mesure([
-            'challenge_id' => $request->integer('challenge_id') ?: null,
+            'inscription_id' => $request->integer('inscription_id') ?: null,
             'measured_at' => now()->toDateString(),
             'stage' => MeasurementStage::Initiale,
         ])));
@@ -72,8 +72,8 @@ class MesureController extends Controller
         $this->authorize('view', $mesure);
 
         $mesure->load([
-            'challenge.participante',
-            'challenge.challengeType',
+            'inscription.participante',
+            'inscription.challenge.challengeType',
             'values.measurementType',
             'recordedBy',
             'media.uploadedBy',
@@ -90,7 +90,7 @@ class MesureController extends Controller
     {
         $this->authorize('update', $mesure);
 
-        $mesure->load(['challenge.participante', 'challenge.challengeType', 'values.measurementType']);
+        $mesure->load(['inscription.participante', 'inscription.challenge.challengeType', 'values.measurementType']);
 
         return view('mesures.edit', $this->formData($mesure) + [
             'historizedUpdate' => true,
@@ -112,11 +112,11 @@ class MesureController extends Controller
     {
         $this->authorize('delete', $mesure);
 
-        $challenge = $mesure->challenge;
+        $inscription = $mesure->inscription;
         $mesure->delete();
 
         return redirect()
-            ->route('challenges.show', $challenge)
+            ->route('inscriptions.show', $inscription)
             ->with('success', 'Mesure supprimée avec succès.');
     }
 
@@ -124,8 +124,8 @@ class MesureController extends Controller
     {
         return [
             'mesure' => $mesure,
-            'challenges' => Challenge::query()
-                ->with(['participante', 'challengeType'])
+            'inscriptions' => Inscription::query()
+                ->with(['participante', 'challenge.challengeType'])
                 ->latest()
                 ->get(),
             'measurementTypes' => MeasurementType::query()

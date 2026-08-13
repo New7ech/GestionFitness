@@ -58,9 +58,9 @@ class Participante extends Model
         );
     }
 
-    public function challenges(): HasMany
+    public function inscriptions(): HasMany
     {
-        return $this->hasMany(Challenge::class);
+        return $this->hasMany(Inscription::class);
     }
 
     public function commentaires(): MorphMany

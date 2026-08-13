@@ -10,25 +10,20 @@ return new class extends Migration
     {
         Schema::create('challenges', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('participante_id')->constrained('participantes');
             $table->foreignId('challenge_type_id')->constrained('challenge_types');
+            $table->string('label')->nullable();
             $table->date('start_date');
             $table->unsignedInteger('duration_days');
             $table->date('end_date');
+            $table->unsignedInteger('capacite')->nullable();
+            $table->decimal('default_price', 10, 2)->nullable();
             $table->string('status', 30)->default('planifie');
-            $table->text('goal_text')->nullable();
-            $table->decimal('goal_weight', 8, 2)->nullable();
-            $table->decimal('goal_waist', 8, 2)->nullable();
-            $table->text('goal_personal')->nullable();
-            $table->text('observations')->nullable();
-            $table->decimal('price', 10, 2);
-            $table->string('payment_status', 50)->default('impaye');
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['participante_id', 'status']);
+            $table->index('status');
             $table->index('end_date');
             $table->index('challenge_type_id');
         });

@@ -6,7 +6,7 @@ use App\Enums\PaymentMode;
 use App\Enums\PaymentType;
 use App\Http\Requests\StorePaiementRequest;
 use App\Http\Requests\UpdatePaiementRequest;
-use App\Models\Challenge;
+use App\Models\Inscription;
 use App\Models\Paiement;
 use App\Services\PaymentService;
 use Illuminate\Contracts\View\View;
@@ -22,11 +22,11 @@ class PaiementController extends Controller
         $this->authorize('viewAny', Paiement::class);
 
         $paiements = Paiement::query()
-            ->with(['challenge.participante', 'challenge.challengeType', 'recu'])
-            ->when($request->filled('challenge_id'), fn ($query) => $query->where('challenge_id', $request->input('challenge_id')))
+            ->with(['inscription.participante', 'inscription.challenge.challengeType', 'recu'])
+            ->when($request->filled('inscription_id'), fn ($query) => $query->where('inscription_id', $request->input('inscription_id')))
             ->when($request->filled('q'), function ($query) use ($request): void {
                 $term = $request->string('q')->toString();
-                $query->whereHas('challenge.participante', function ($nestedQuery) use ($term): void {
+                $query->whereHas('inscription.participante', function ($nestedQuery) use ($term): void {
                     $nestedQuery
                         ->where('first_name', 'like', "%{$term}%")
                         ->orWhere('last_name', 'like', "%{$term}%")
@@ -47,7 +47,7 @@ class PaiementController extends Controller
         $this->authorize('create', Paiement::class);
 
         return view('payments.create', $this->formData(new Paiement([
-            'challenge_id' => $request->integer('challenge_id') ?: null,
+            'inscription_id' => $request->integer('inscription_id') ?: null,
             'type' => PaymentType::Paiement,
             'payment_date' => now()->toDateString(),
         ])));
@@ -68,11 +68,11 @@ class PaiementController extends Controller
     {
         $this->authorize('view', $paiement);
 
-        $paiement->load(['challenge.participante', 'challenge.challengeType', 'recu', 'recordedBy']);
+        $paiement->load(['inscription.participante', 'inscription.challenge.challengeType', 'recu', 'recordedBy']);
 
         return view('payments.show', [
             'paiement' => $paiement,
-            'remainingAmount' => $this->paymentService->remainingAmount($paiement->challenge),
+            'remainingAmount' => $this->paymentService->remainingAmount($paiement->inscription),
         ]);
     }
 
@@ -98,11 +98,11 @@ class PaiementController extends Controller
     {
         $this->authorize('delete', $paiement);
 
-        $challenge = $paiement->challenge;
+        $inscription = $paiement->inscription;
         $this->paymentService->delete($paiement);
 
         return redirect()
-            ->route('challenges.show', $challenge)
+            ->route('inscriptions.show', $inscription)
             ->with('success', 'Paiement supprimé avec succès.');
     }
 
@@ -110,8 +110,8 @@ class PaiementController extends Controller
     {
         return [
             'paiement' => $paiement,
-            'challenges' => Challenge::query()
-                ->with(['participante', 'challengeType'])
+            'inscriptions' => Inscription::query()
+                ->with(['participante', 'challenge.challengeType'])
                 ->latest()
                 ->get(),
             'types' => PaymentType::cases(),

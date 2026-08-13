@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\MeasurementType;
 use App\Models\Mesure;
 use Illuminate\Support\Facades\DB;
 
@@ -19,7 +18,7 @@ class MesureService
             $mesure = Mesure::query()->create($data);
             $this->storeValues($mesure, is_array($values) ? $values : []);
 
-            return $mesure->load(['challenge.participante', 'challenge.challengeType', 'values.measurementType']);
+            return $mesure->load(['inscription.participante', 'inscription.challenge.challengeType', 'values.measurementType']);
         });
     }
 
@@ -29,7 +28,7 @@ class MesureService
             return;
         }
 
-        $activeTypeIds = MeasurementType::query()
+        $activeTypeIds = \App\Models\MeasurementType::query()
             ->where('is_active', true)
             ->whereIn('id', array_keys($values))
             ->pluck('id')

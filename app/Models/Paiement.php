@@ -17,7 +17,7 @@ class Paiement extends Model
     protected $table = 'payments';
 
     protected $fillable = [
-        'challenge_id',
+        'inscription_id',
         'amount',
         'type',
         'payment_date',
@@ -36,9 +36,9 @@ class Paiement extends Model
         ];
     }
 
-    public function challenge(): BelongsTo
+    public function inscription(): BelongsTo
     {
-        return $this->belongsTo(Challenge::class);
+        return $this->belongsTo(Inscription::class);
     }
 
     public function recu(): HasOne

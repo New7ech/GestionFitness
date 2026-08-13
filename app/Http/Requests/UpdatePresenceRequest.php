@@ -17,10 +17,8 @@ class UpdatePresenceRequest extends FormRequest
 
     public function rules(): array
     {
-        $presence = $this->route('presence');
-
         return [
-            'challenge_id' => ['required', 'exists:challenges,id'],
+            'inscription_id' => ['required', 'exists:inscriptions,id'],
             'attendance_date' => [
                 'required',
                 'date',
@@ -33,11 +31,11 @@ class UpdatePresenceRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'challenge_id.required' => 'Le challenge est obligatoire.',
-            'challenge_id.exists' => 'Le challenge sélectionné est invalide.',
+            'inscription_id.required' => 'L\'inscription est obligatoire.',
+            'inscription_id.exists' => 'L\'inscription sélectionnée est invalide.',
             'attendance_date.required' => 'La date de présence est obligatoire.',
             'attendance_date.date' => 'La date de présence doit être une date valide.',
-            'attendance_date.unique' => 'Une présence existe déjà pour ce challenge à cette date.',
+            'attendance_date.unique' => 'Une présence existe déjà pour cette inscription à cette date.',
             'status.required' => 'Le statut de présence est obligatoire.',
             'status' => 'Le statut de présence sélectionné est invalide.',
         ];
@@ -53,22 +51,22 @@ class UpdatePresenceRequest extends FormRequest
                 return;
             }
 
-            if ((int) $this->input('challenge_id') !== (int) $presence->challenge_id) {
-                $validator->errors()->add('challenge_id', 'La présence doit rester rattachée au challenge d’origine.');
+            if ((int) $this->input('inscription_id') !== (int) $presence->inscription_id) {
+                $validator->errors()->add('inscription_id', 'La présence doit rester rattachée à l\'inscription d\'origine.');
 
                 return;
             }
 
-            $challenge = $presence->challenge;
+            $challenge = $presence->inscription->challenge;
 
             if (
                 Presence::query()
-                    ->where('challenge_id', $challenge->id)
+                    ->where('inscription_id', $presence->inscription_id)
                     ->whereDate('attendance_date', $attendanceDate)
                     ->whereKeyNot($presence->id)
                     ->exists()
             ) {
-                $validator->errors()->add('attendance_date', 'Une présence existe déjà pour ce challenge à cette date.');
+                $validator->errors()->add('attendance_date', 'Une présence existe déjà pour cette inscription à cette date.');
             }
 
             if ($attendanceDate < $challenge->start_date->toDateString() || $attendanceDate > $challenge->end_date->toDateString()) {

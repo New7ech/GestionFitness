@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('challenge_id')->constrained('challenges');
+            $table->foreignId('inscription_id')->constrained('inscriptions');
             $table->decimal('amount', 10, 2);
             $table->string('type', 30)->default('paiement');
             $table->date('payment_date');
@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('challenge_id');
+            $table->index('inscription_id');
             $table->index('payment_date');
         });
     }

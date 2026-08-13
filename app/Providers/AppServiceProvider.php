@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Challenge;
+use App\Models\Inscription;
 use App\Models\Media;
 use App\Models\Mesure;
 use App\Models\Paiement;

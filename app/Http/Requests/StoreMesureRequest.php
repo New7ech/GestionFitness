@@ -18,7 +18,7 @@ class StoreMesureRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'challenge_id' => ['required', 'exists:challenges,id'],
+            'inscription_id' => ['required', 'exists:inscriptions,id'],
             'measured_at' => ['required', 'date'],
             'stage' => ['required', Rule::enum(MeasurementStage::class)],
             'weight' => ['required', 'numeric', 'min:0.01'],
@@ -32,8 +32,8 @@ class StoreMesureRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'challenge_id.required' => 'Le challenge est obligatoire.',
-            'challenge_id.exists' => 'Le challenge sélectionné est invalide.',
+            'inscription_id.required' => 'L\'inscription est obligatoire.',
+            'inscription_id.exists' => 'L\'inscription sélectionnée est invalide.',
             'measured_at.required' => 'La date de mesure est obligatoire.',
             'measured_at.date' => 'La date de mesure doit être une date valide.',
             'stage.required' => 'L’étape de mesure est obligatoire.',

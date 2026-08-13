@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('mesures', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('challenge_id')->constrained('challenges');
+            $table->foreignId('inscription_id')->constrained('inscriptions');
             $table->date('measured_at');
             $table->string('stage', 30);
             $table->decimal('weight', 8, 2);
@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['challenge_id', 'measured_at']);
+            $table->index(['inscription_id', 'measured_at']);
         });
     }
 
