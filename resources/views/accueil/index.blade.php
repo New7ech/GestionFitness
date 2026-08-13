@@ -194,7 +194,7 @@
                                     <td>{{ $challenge->challengeType?->label ?? '—' }}</td>
                                     <td><span class="badge bg-secondary">{{ $challenge->status->label() }}</span></td>
                                     <td class="text-center">
-                                        <a href="{{ route('challenges.show', $challenge) }}" class="btn btn-info btn-sm" title="Voir le challenge">
+                                        <a href="{{ route('challenges.show', $challenge->challenge_id) }}" class="btn btn-info btn-sm" title="Voir le challenge">
                                             <i class="fa fa-eye"></i>
                                         </a>
                                     </td>
@@ -242,7 +242,7 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route('challenges.show', $challenge) }}" class="btn btn-warning btn-sm" title="Voir le challenge">
+                                    <a href="{{ route('challenges.show', $challenge->challenge_id) }}" class="btn btn-warning btn-sm" title="Voir le challenge">
                                         <i class="fa fa-eye"></i>
                                     </a>
                                 </td>

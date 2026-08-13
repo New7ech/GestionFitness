@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\AttendanceStatus;
 use App\Models\Challenge;
+use App\Models\Inscription;
 use App\Models\Participante;
 use App\Models\Presence;
 use App\Models\User;
@@ -31,10 +32,10 @@ class PresenceManagementTest extends TestCase
     public function manager_peut_enregistrer_une_presence(): void
     {
         $manager = $this->manager();
-        $challenge = $this->challenge();
+        $inscription = $this->inscription();
 
         $response = $this->actingAs($manager)->post(route('presences.store'), [
-            'challenge_id' => $challenge->id,
+            'inscription_id' => $inscription->id,
             'attendance_date' => '2026-08-11',
             'status' => AttendanceStatus::Presente->value,
             'comment' => 'Séance complète.',
@@ -43,7 +44,7 @@ class PresenceManagementTest extends TestCase
         $presence = Presence::query()->firstOrFail();
 
         $response->assertRedirect(route('presences.show', $presence));
-        $this->assertSame($challenge->id, $presence->challenge_id);
+        $this->assertSame($inscription->id, $presence->inscription_id);
         $this->assertSame(AttendanceStatus::Presente, $presence->status);
         $this->assertSame($manager->id, $presence->recorded_by);
         $this->assertSame($manager->id, $presence->updated_by);
@@ -57,56 +58,56 @@ class PresenceManagementTest extends TestCase
         $response = $this->actingAs($manager)
             ->from(route('presences.create'))
             ->post(route('presences.store'), [
-                'challenge_id' => '',
+                'inscription_id' => '',
                 'attendance_date' => '',
                 'status' => '',
             ]);
 
         $response->assertRedirect(route('presences.create'));
-        $response->assertSessionHasErrors(['challenge_id', 'attendance_date', 'status']);
+        $response->assertSessionHasErrors(['inscription_id', 'attendance_date', 'status']);
         $this->assertDatabaseCount('presences', 0);
     }
 
     #[Test]
-    public function une_seule_presence_est_autorisee_par_challenge_et_par_date(): void
+    public function une_seule_presence_est_autorisee_par_inscription_et_par_date(): void
     {
         $manager = $this->manager();
-        $challenge = $this->challenge();
+        $inscription = $this->inscription();
 
         Presence::factory()->create([
-            'challenge_id' => $challenge->id,
+            'inscription_id' => $inscription->id,
             'attendance_date' => '2026-08-11',
             'status' => AttendanceStatus::Presente,
         ]);
 
         $response = $this->actingAs($manager)
-            ->from(route('presences.create', ['challenge_id' => $challenge->id]))
+            ->from(route('presences.create', ['inscription_id' => $inscription->id]))
             ->post(route('presences.store'), [
-                'challenge_id' => $challenge->id,
+                'inscription_id' => $inscription->id,
                 'attendance_date' => '2026-08-11',
                 'status' => AttendanceStatus::Absente->value,
             ]);
 
-        $response->assertRedirect(route('presences.create', ['challenge_id' => $challenge->id]));
+        $response->assertRedirect(route('presences.create', ['inscription_id' => $inscription->id]));
         $response->assertSessionHasErrors('attendance_date');
-        $this->assertSame(1, Presence::query()->where('challenge_id', $challenge->id)->count());
+        $this->assertSame(1, Presence::query()->where('inscription_id', $inscription->id)->count());
     }
 
     #[Test]
     public function date_presence_doit_rester_dans_la_periode_du_challenge(): void
     {
         $manager = $this->manager();
-        $challenge = $this->challenge();
+        $inscription = $this->inscription();
 
         $response = $this->actingAs($manager)
-            ->from(route('presences.create', ['challenge_id' => $challenge->id]))
+            ->from(route('presences.create', ['inscription_id' => $inscription->id]))
             ->post(route('presences.store'), [
-                'challenge_id' => $challenge->id,
+                'inscription_id' => $inscription->id,
                 'attendance_date' => '2026-09-15',
                 'status' => AttendanceStatus::Presente->value,
             ]);
 
-        $response->assertRedirect(route('presences.create', ['challenge_id' => $challenge->id]));
+        $response->assertRedirect(route('presences.create', ['inscription_id' => $inscription->id]));
         $response->assertSessionHasErrors('attendance_date');
         $this->assertDatabaseCount('presences', 0);
     }
@@ -115,12 +116,12 @@ class PresenceManagementTest extends TestCase
     public function utilisateur_sans_permission_ne_peut_pas_enregistrer_une_presence(): void
     {
         $user = User::factory()->create();
-        $challenge = $this->challenge();
+        $inscription = $this->inscription();
 
         $this->actingAs($user)->get(route('presences.create'))->assertForbidden();
 
         $this->actingAs($user)->post(route('presences.store'), [
-            'challenge_id' => $challenge->id,
+            'inscription_id' => $inscription->id,
             'attendance_date' => '2026-08-11',
             'status' => AttendanceStatus::Presente->value,
         ])->assertForbidden();
@@ -134,9 +135,9 @@ class PresenceManagementTest extends TestCase
         $manager = $this->manager();
         $coach = User::factory()->create();
         $coach->assignRole('coach');
-        $challenge = $this->challenge();
+        $inscription = $this->inscription();
         $presence = Presence::factory()->create([
-            'challenge_id' => $challenge->id,
+            'inscription_id' => $inscription->id,
             'attendance_date' => '2026-08-11',
             'status' => AttendanceStatus::Presente,
             'recorded_by' => $manager->id,
@@ -144,7 +145,7 @@ class PresenceManagementTest extends TestCase
         ]);
 
         $response = $this->actingAs($coach)->put(route('presences.update', $presence), [
-            'challenge_id' => $challenge->id,
+            'inscription_id' => $inscription->id,
             'attendance_date' => '2026-08-11',
             'status' => AttendanceStatus::Absente->value,
             'comment' => 'Absence confirmée.',
@@ -164,10 +165,10 @@ class PresenceManagementTest extends TestCase
     {
         $manager = $this->manager();
         $participante = Participante::factory()->create();
-        $challenge = $this->challenge($participante);
+        $inscription = $this->inscription($participante);
 
         Presence::factory()->create([
-            'challenge_id' => $challenge->id,
+            'inscription_id' => $inscription->id,
             'attendance_date' => '2026-08-11',
             'status' => AttendanceStatus::Presente,
             'recorded_by' => $manager->id,
@@ -188,12 +189,16 @@ class PresenceManagementTest extends TestCase
         return $manager;
     }
 
-    private function challenge(?Participante $participante = null): Challenge
+    private function inscription(?Participante $participante = null): Inscription
     {
-        return Challenge::factory()->create([
-            'participante_id' => $participante?->id ?? Participante::factory(),
+        $challenge = Challenge::factory()->create([
             'start_date' => '2026-08-01',
             'duration_days' => 30,
+        ]);
+
+        return Inscription::factory()->create([
+            'participante_id' => $participante?->id ?? Participante::factory(),
+            'challenge_id' => $challenge->id,
         ]);
     }
 }

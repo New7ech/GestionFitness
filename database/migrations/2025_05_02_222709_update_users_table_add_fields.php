@@ -49,7 +49,7 @@ return new class extends Migration
                 'role_id', 'status', 'created_by', 'updated_by',
                 'last_login_at', 'last_action', 'two_factor_secret',
                 'two_factor_enabled', 'preferences', 'is_admin',
-                'module_access', 'notifications_enabled'
+                'module_access', 'notifications_enabled',
             ]);
         });
     }

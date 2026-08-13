@@ -25,6 +25,7 @@
         <ini name="display_errors" value="0"/>
         <ini name="error_reporting" value="E_ALL &amp; ~E_DEPRECATED &amp; ~E_USER_DEPRECATED"/>
         <env name="APP_ENV" value="testing"/>
+        <env name="APP_KEY" value="base64:yf8mO8v71F7gL8+qFpC899g2H3s7Zp9C4fO9G8n5Vz4="/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>

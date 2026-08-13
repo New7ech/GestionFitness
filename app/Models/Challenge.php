@@ -114,4 +114,49 @@ class Challenge extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+    public function getParticipanteAttribute()
+    {
+        return $this->inscriptions->first()?->participante;
+    }
+
+    public function getMesuresAttribute()
+    {
+        return $this->inscriptions->flatMap->mesures;
+    }
+
+    public function getMediaAttribute()
+    {
+        return $this->inscriptions->flatMap->media;
+    }
+
+    public function getPaiementsAttribute()
+    {
+        return $this->inscriptions->flatMap->paiements;
+    }
+
+    public function getPresencesAttribute()
+    {
+        return $this->inscriptions->flatMap->presences;
+    }
+
+    public function getPaymentStatusAttribute()
+    {
+        return $this->inscriptions->first()?->payment_status ?? \App\Enums\PaymentStatus::Impaye;
+    }
+
+    public function getPriceAttribute()
+    {
+        return $this->inscriptions->first()?->price ?? 0;
+    }
+
+    public function getGoalWeightAttribute()
+    {
+        return $this->inscriptions->first()?->goal_weight;
+    }
+
+    public function getGoalWaistAttribute()
+    {
+        return $this->inscriptions->first()?->goal_waist;
+    }
 }

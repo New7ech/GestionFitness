@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\MeasurementStage;
 use App\Enums\MediaType;
 use App\Http\Requests\StoreParticipantMediaRequest;
+use App\Models\Challenge;
 use App\Models\Inscription;
 use App\Models\Media;
 use App\Models\Mesure;
@@ -69,10 +70,15 @@ class ParticipantMediaController extends Controller
         ]);
     }
 
-    public function store(StoreParticipantMediaRequest $request, Inscription $inscription): RedirectResponse
+    public function store(StoreParticipantMediaRequest $request, Challenge $challenge): RedirectResponse
     {
-        $this->authorize('view', $inscription);
+        $this->authorize('view', $challenge);
         $this->authorize('create', Media::class);
+
+        $inscription = $challenge->inscriptions->first();
+        if (! $inscription) {
+            return back()->with('error', 'Aucune inscription active trouvée pour ce challenge.');
+        }
 
         $data = $request->validated();
         $file = $request->file('media');

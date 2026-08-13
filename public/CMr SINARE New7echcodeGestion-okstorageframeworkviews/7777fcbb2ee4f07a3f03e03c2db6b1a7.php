@@ -1,12 +1,16 @@
-<?php if (isset($component)) { $__componentOriginal74daf2d0a9c625ad90327a6043d15980 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal74daf2d0a9c625ad90327a6043d15980 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'laravel-exceptions-renderer::components.card','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php if (isset($component)) {
+    $__componentOriginal74daf2d0a9c625ad90327a6043d15980 = $component;
+} ?>
+<?php if (isset($attributes)) {
+    $__attributesOriginal74daf2d0a9c625ad90327a6043d15980 = $attributes;
+} ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'laravel-exceptions-renderer::components.card', 'data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('laravel-exceptions-renderer::card'); ?>
-<?php if ($component->shouldRender()): ?>
+<?php if ($component->shouldRender()) { ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag) { ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
+<?php } ?>
 <?php $component->withAttributes([]); ?>
     <div class="md:flex md:items-center md:justify-between md:gap-2">
         <div class="min-w-0">
@@ -39,13 +43,13 @@
         </div>
     </div>
  <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal74daf2d0a9c625ad90327a6043d15980)): ?>
+<?php } ?>
+<?php if (isset($__attributesOriginal74daf2d0a9c625ad90327a6043d15980)) { ?>
 <?php $attributes = $__attributesOriginal74daf2d0a9c625ad90327a6043d15980; ?>
 <?php unset($__attributesOriginal74daf2d0a9c625ad90327a6043d15980); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal74daf2d0a9c625ad90327a6043d15980)): ?>
+<?php } ?>
+<?php if (isset($__componentOriginal74daf2d0a9c625ad90327a6043d15980)) { ?>
 <?php $component = $__componentOriginal74daf2d0a9c625ad90327a6043d15980; ?>
 <?php unset($__componentOriginal74daf2d0a9c625ad90327a6043d15980); ?>
-<?php endif; ?>
+<?php } ?>
 <?php /**PATH /var/www/vendor/laravel/framework/src/Illuminate/Foundation/Providers/../resources/exceptions/renderer/components/header.blade.php ENDPATH**/ ?>

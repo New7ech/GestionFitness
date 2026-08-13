@@ -16,108 +16,128 @@
                 <span class="ml-1">vendor frames</span>
 
                 <div class="flex flex-col ml-1 -mt-2" x-cloak x-show="includeVendorFrames">
-                    <?php if (isset($component)) { $__componentOriginal707ceba27255eae48fdb0f3529710ddf = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal707ceba27255eae48fdb0f3529710ddf = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'laravel-exceptions-renderer::components.icons.chevron-down','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+                    <?php if (isset($component)) {
+                        $__componentOriginal707ceba27255eae48fdb0f3529710ddf = $component;
+                    } ?>
+<?php if (isset($attributes)) {
+                        $__attributesOriginal707ceba27255eae48fdb0f3529710ddf = $attributes;
+                    } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'laravel-exceptions-renderer::components.icons.chevron-down', 'data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('laravel-exceptions-renderer::icons.chevron-down'); ?>
-<?php if ($component->shouldRender()): ?>
+<?php if ($component->shouldRender()) { ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag) { ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
+<?php } ?>
 <?php $component->withAttributes([]); ?>
 <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal707ceba27255eae48fdb0f3529710ddf)): ?>
+<?php } ?>
+<?php if (isset($__attributesOriginal707ceba27255eae48fdb0f3529710ddf)) { ?>
 <?php $attributes = $__attributesOriginal707ceba27255eae48fdb0f3529710ddf; ?>
 <?php unset($__attributesOriginal707ceba27255eae48fdb0f3529710ddf); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal707ceba27255eae48fdb0f3529710ddf)): ?>
+<?php } ?>
+<?php if (isset($__componentOriginal707ceba27255eae48fdb0f3529710ddf)) { ?>
 <?php $component = $__componentOriginal707ceba27255eae48fdb0f3529710ddf; ?>
 <?php unset($__componentOriginal707ceba27255eae48fdb0f3529710ddf); ?>
-<?php endif; ?>
-                    <?php if (isset($component)) { $__componentOriginal14b1cc5db95fcca4a0f06445821cff39 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal14b1cc5db95fcca4a0f06445821cff39 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'laravel-exceptions-renderer::components.icons.chevron-up','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php } ?>
+                    <?php if (isset($component)) {
+                        $__componentOriginal14b1cc5db95fcca4a0f06445821cff39 = $component;
+                    } ?>
+<?php if (isset($attributes)) {
+                        $__attributesOriginal14b1cc5db95fcca4a0f06445821cff39 = $attributes;
+                    } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'laravel-exceptions-renderer::components.icons.chevron-up', 'data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('laravel-exceptions-renderer::icons.chevron-up'); ?>
-<?php if ($component->shouldRender()): ?>
+<?php if ($component->shouldRender()) { ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag) { ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
+<?php } ?>
 <?php $component->withAttributes([]); ?>
 <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal14b1cc5db95fcca4a0f06445821cff39)): ?>
+<?php } ?>
+<?php if (isset($__attributesOriginal14b1cc5db95fcca4a0f06445821cff39)) { ?>
 <?php $attributes = $__attributesOriginal14b1cc5db95fcca4a0f06445821cff39; ?>
 <?php unset($__attributesOriginal14b1cc5db95fcca4a0f06445821cff39); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal14b1cc5db95fcca4a0f06445821cff39)): ?>
+<?php } ?>
+<?php if (isset($__componentOriginal14b1cc5db95fcca4a0f06445821cff39)) { ?>
 <?php $component = $__componentOriginal14b1cc5db95fcca4a0f06445821cff39; ?>
 <?php unset($__componentOriginal14b1cc5db95fcca4a0f06445821cff39); ?>
-<?php endif; ?>
+<?php } ?>
                 </div>
 
                 <div class="flex flex-col ml-1 -mt-2" x-cloak x-show="! includeVendorFrames">
-                    <?php if (isset($component)) { $__componentOriginal14b1cc5db95fcca4a0f06445821cff39 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal14b1cc5db95fcca4a0f06445821cff39 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'laravel-exceptions-renderer::components.icons.chevron-up','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+                    <?php if (isset($component)) {
+                        $__componentOriginal14b1cc5db95fcca4a0f06445821cff39 = $component;
+                    } ?>
+<?php if (isset($attributes)) {
+                        $__attributesOriginal14b1cc5db95fcca4a0f06445821cff39 = $attributes;
+                    } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'laravel-exceptions-renderer::components.icons.chevron-up', 'data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('laravel-exceptions-renderer::icons.chevron-up'); ?>
-<?php if ($component->shouldRender()): ?>
+<?php if ($component->shouldRender()) { ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag) { ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
+<?php } ?>
 <?php $component->withAttributes([]); ?>
 <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal14b1cc5db95fcca4a0f06445821cff39)): ?>
+<?php } ?>
+<?php if (isset($__attributesOriginal14b1cc5db95fcca4a0f06445821cff39)) { ?>
 <?php $attributes = $__attributesOriginal14b1cc5db95fcca4a0f06445821cff39; ?>
 <?php unset($__attributesOriginal14b1cc5db95fcca4a0f06445821cff39); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal14b1cc5db95fcca4a0f06445821cff39)): ?>
+<?php } ?>
+<?php if (isset($__componentOriginal14b1cc5db95fcca4a0f06445821cff39)) { ?>
 <?php $component = $__componentOriginal14b1cc5db95fcca4a0f06445821cff39; ?>
 <?php unset($__componentOriginal14b1cc5db95fcca4a0f06445821cff39); ?>
-<?php endif; ?>
-                    <?php if (isset($component)) { $__componentOriginal707ceba27255eae48fdb0f3529710ddf = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal707ceba27255eae48fdb0f3529710ddf = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'laravel-exceptions-renderer::components.icons.chevron-down','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php } ?>
+                    <?php if (isset($component)) {
+                        $__componentOriginal707ceba27255eae48fdb0f3529710ddf = $component;
+                    } ?>
+<?php if (isset($attributes)) {
+                        $__attributesOriginal707ceba27255eae48fdb0f3529710ddf = $attributes;
+                    } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'laravel-exceptions-renderer::components.icons.chevron-down', 'data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('laravel-exceptions-renderer::icons.chevron-down'); ?>
-<?php if ($component->shouldRender()): ?>
+<?php if ($component->shouldRender()) { ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag) { ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
+<?php } ?>
 <?php $component->withAttributes([]); ?>
 <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal707ceba27255eae48fdb0f3529710ddf)): ?>
+<?php } ?>
+<?php if (isset($__attributesOriginal707ceba27255eae48fdb0f3529710ddf)) { ?>
 <?php $attributes = $__attributesOriginal707ceba27255eae48fdb0f3529710ddf; ?>
 <?php unset($__attributesOriginal707ceba27255eae48fdb0f3529710ddf); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal707ceba27255eae48fdb0f3529710ddf)): ?>
+<?php } ?>
+<?php if (isset($__componentOriginal707ceba27255eae48fdb0f3529710ddf)) { ?>
 <?php $component = $__componentOriginal707ceba27255eae48fdb0f3529710ddf; ?>
 <?php unset($__componentOriginal707ceba27255eae48fdb0f3529710ddf); ?>
-<?php endif; ?>
+<?php } ?>
                 </div>
             </button>
         </div>
 
         <div class="mb-12 space-y-2">
-            <?php $__currentLoopData = $exception->frames(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $frame): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <?php if(! $frame->isFromVendor()): ?>
+            <?php $__currentLoopData = $exception->frames();
+                    $__env->addLoop($__currentLoopData);
+                    foreach ($__currentLoopData as $frame) {
+                        $__env->incrementLoopIndices();
+                        $loop = $__env->getLastLoop(); ?>
+                <?php if (! $frame->isFromVendor()) { ?>
                     <?php
-                        $vendorFramesCollapsed = $exception->frames()->take($loop->index)->reverse()->takeUntil(fn ($frame) => ! $frame->isFromVendor());
+                                    $vendorFramesCollapsed = $exception->frames()->take($loop->index)->reverse()->takeUntil(fn ($frame) => ! $frame->isFromVendor());
                     ?>
 
                     <div x-show="! includeVendorFrames">
-                        <?php if($vendorFramesCollapsed->isNotEmpty()): ?>
+                        <?php if ($vendorFramesCollapsed->isNotEmpty()) { ?>
                             <div class="text-gray-500">
                                 <?php echo e($vendorFramesCollapsed->count()); ?> vendor frame<?php echo e($vendorFramesCollapsed->count() > 1 ? 's' : ''); ?> collapsed
                             </div>
-                        <?php endif; ?>
+                        <?php } ?>
                     </div>
-                <?php endif; ?>
+                <?php } ?>
 
                 <button
                     class="w-full text-left dark:border-gray-900"
@@ -147,17 +167,18 @@
                     </div>
                 </button>
 
-                <?php if(! $frame->isFromVendor() && $exception->frames()->slice($loop->index + 1)->reject(fn ($frame) => $frame->isFromVendor())->isEmpty()): ?>
-                    <?php if($exception->frames()->slice($loop->index + 1)->count()): ?>
+                <?php if (! $frame->isFromVendor() && $exception->frames()->slice($loop->index + 1)->reject(fn ($frame) => $frame->isFromVendor())->isEmpty()) { ?>
+                    <?php if ($exception->frames()->slice($loop->index + 1)->count()) { ?>
                         <div x-show="! includeVendorFrames">
                             <div class="text-gray-500">
                                 <?php echo e($exception->frames()->slice($loop->index + 1)->count()); ?> vendor
                                 frame<?php echo e($exception->frames()->slice($loop->index + 1)->count() > 1 ? 's' : ''); ?> collapsed
                             </div>
                         </div>
-                    <?php endif; ?>
-                <?php endif; ?>
-            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <?php } ?>
+                <?php } ?>
+            <?php } $__env->popLoop();
+                    $loop = $__env->getLastLoop(); ?>
         </div>
     </div>
 </div>

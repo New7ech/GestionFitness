@@ -63,6 +63,11 @@ class Participante extends Model
         return $this->hasMany(Inscription::class);
     }
 
+    public function challenges()
+    {
+        return $this->hasManyThrough(Challenge::class, Inscription::class, 'participante_id', 'id', 'id', 'challenge_id');
+    }
+
     public function commentaires(): MorphMany
     {
         return $this->morphMany(Commentaire::class, 'commentable');

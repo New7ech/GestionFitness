@@ -136,7 +136,7 @@
                         </div>
 
                         <div class="tab-pane fade" id="paiements" role="tabpanel">
-                            @php($paiements = $participante->challenges->flatMap->paiements)
+                            @php($paiements = $participante->inscriptions->flatMap->paiements)
                             @if ($paiements->isNotEmpty())
                                 <div class="table-responsive">
                                     <table class="table table-striped table-hover">
@@ -209,7 +209,7 @@
                             @endif
                         </div>
 
-                        @php($allPresences = $participante->challenges->flatMap->presences->sortByDesc('attendance_date'))
+                        @php($allPresences = $participante->inscriptions->flatMap->presences->sortByDesc('attendance_date'))
 
                         <div class="tab-pane fade" id="presences" role="tabpanel">
                             @if ($allPresences->isNotEmpty())
@@ -250,8 +250,8 @@
                             @endif
                         </div>
 
-                        @php($allMesures = $participante->challenges->flatMap->mesures->sortByDesc('measured_at'))
-                        @php($allMedia = $participante->challenges->flatMap(fn ($challenge) => $challenge->media->merge($challenge->mesures->flatMap->media)))
+                        @php($allMesures = $participante->inscriptions->flatMap->mesures->sortByDesc('measured_at'))
+                        @php($allMedia = $participante->inscriptions->flatMap(fn ($inscription) => $inscription->media->merge($inscription->mesures->flatMap->media)))
                         @php($photos = $allMedia->filter(fn ($media) => $media->type === \App\Enums\MediaType::Photo))
                         @php($videos = $allMedia->filter(fn ($media) => $media->type === \App\Enums\MediaType::Video))
 

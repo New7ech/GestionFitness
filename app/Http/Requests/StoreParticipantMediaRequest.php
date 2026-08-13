@@ -46,7 +46,7 @@ class StoreParticipantMediaRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
-            $inscription = $this->route('inscription');
+            $inscription = $this->route('inscription') ?? $this->route('challenge')?->inscriptions?->first();
             $mesureId = $this->input('mesure_id');
 
             if (! $inscription || ! $mesureId) {

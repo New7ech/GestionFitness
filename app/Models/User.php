@@ -10,8 +10,8 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     use HasFactory;
-    use Notifiable;
     use HasRoles;
+    use Notifiable;
 
     protected $fillable = [
         'name',
@@ -66,7 +66,6 @@ class User extends Authenticatable
             return asset('assets/img/profile.jpg');
         }
 
-        return url('media/public/' . ltrim($this->photo, '/'));
+        return url('media/public/'.ltrim($this->photo, '/'));
     }
 }
-

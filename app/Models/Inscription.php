@@ -118,4 +118,9 @@ class Inscription extends Model
     {
         return $this->status->isActive();
     }
+
+    public function getChallengeTypeAttribute()
+    {
+        return $this->challenge?->challengeType;
+    }
 }

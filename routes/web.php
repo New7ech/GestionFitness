@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\AccueilController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\InscriptionController;
+use App\Http\Controllers\ChallengeController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MesureController;
 use App\Http\Controllers\NotificationController;
@@ -57,7 +57,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/recus', [RecuController::class, 'index'])->name('recus.index');
     Route::get('/recus/{recu}', [RecuController::class, 'show'])->name('recus.show');
     Route::get('/recus/{recu}/pdf', [RecuController::class, 'pdf'])->name('recus.pdf');
-
 
     // Administration (réservée aux rôles disposant des permissions de gestion)
     Route::middleware('role:super_admin|manager')->group(function () {

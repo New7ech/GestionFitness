@@ -80,4 +80,3 @@ class RoleController extends Controller
             ->with('success', 'Rôle supprimé avec succès.');
     }
 }
-

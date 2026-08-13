@@ -2,10 +2,8 @@
 
 namespace App\Services;
 
-use App\Enums\InscriptionStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
-use App\Models\Challenge;
 use App\Models\Inscription;
 use App\Models\Paiement;
 use Illuminate\Support\Facades\DB;

@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ChallengeStatus;
+use App\Enums\InscriptionStatus;
 use App\Enums\PaymentStatus;
 use App\Models\Challenge;
-use App\Models\ChallengeType;
+use App\Models\Inscription;
 use App\Models\Paiement;
 use App\Models\Participante;
 use App\Models\Presence;
@@ -16,14 +17,14 @@ class AccueilController extends Controller
 {
     public function index(): View
     {
-        $now          = Carbon::now();
+        $now = Carbon::now();
         $startOfMonth = $now->copy()->startOfMonth();
-        $endOfMonth   = $now->copy()->endOfMonth();
+        $endOfMonth = $now->copy()->endOfMonth();
 
-        $nombreParticipantes       = Participante::query()->count();
+        $nombreParticipantes = Participante::query()->count();
         $nombreParticipantesActives = Participante::query()->where('status', 'active')->count();
-        $nombreChallengesEnCours   = Challenge::query()->where('status', ChallengeStatus::EnCours)->count();
-        $nombreChallengesActifs    = Challenge::query()
+        $nombreChallengesEnCours = Challenge::query()->where('status', ChallengeStatus::EnCours)->count();
+        $nombreChallengesActifs = Challenge::query()
             ->whereIn('status', [ChallengeStatus::Planifie, ChallengeStatus::EnCours])
             ->count();
 
@@ -31,9 +32,12 @@ class AccueilController extends Controller
             ->whereBetween('payment_date', [$startOfMonth, $endOfMonth])
             ->sum('amount');
 
-        $challengesImpayes = Challenge::query()
+        $challengesImpayes = Inscription::query()
             ->whereIn('payment_status', [PaymentStatus::Impaye, PaymentStatus::PartiellementPaye])
-            ->whereIn('status', [ChallengeStatus::Planifie, ChallengeStatus::EnCours, ChallengeStatus::Termine])
+            ->where('status', '!=', InscriptionStatus::Annulee->value)
+            ->whereHas('challenge', function ($query) {
+                $query->whereIn('status', [ChallengeStatus::Planifie, ChallengeStatus::EnCours, ChallengeStatus::Termine]);
+            })
             ->count();
 
         $presencesMoisCourant = Presence::query()
@@ -45,22 +49,25 @@ class AccueilController extends Controller
             ->limit(5)
             ->get();
 
-        $challengesRecents = Challenge::query()
-            ->with(['participante', 'challengeType'])
+        $challengesRecents = Inscription::query()
+            ->with(['participante', 'challenge.challengeType'])
             ->latest('created_at')
             ->limit(5)
             ->get();
 
-        $challengesImpayesList = Challenge::query()
-            ->with(['participante', 'challengeType'])
+        $challengesImpayesList = Inscription::query()
+            ->with(['participante', 'challenge.challengeType'])
             ->whereIn('payment_status', [PaymentStatus::Impaye, PaymentStatus::PartiellementPaye])
-            ->whereIn('status', [ChallengeStatus::Planifie, ChallengeStatus::EnCours, ChallengeStatus::Termine])
-            ->latest('start_date')
+            ->where('status', '!=', InscriptionStatus::Annulee->value)
+            ->whereHas('challenge', function ($query) {
+                $query->whereIn('status', [ChallengeStatus::Planifie, ChallengeStatus::EnCours, ChallengeStatus::Termine]);
+            })
+            ->latest('inscription_date')
             ->limit(10)
             ->get();
 
         $paiementsJournaliers = $this->paiementsJournaliers7Jours();
-        $challengesParType    = $this->challengesParType();
+        $challengesParType = $this->challengesParType();
 
         return view('accueil.index', compact(
             'nombreParticipantes',
@@ -84,12 +91,12 @@ class AccueilController extends Controller
     private function paiementsJournaliers7Jours(): array
     {
         $labels = [];
-        $data   = [];
+        $data = [];
 
         for ($i = 6; $i >= 0; $i--) {
-            $day      = Carbon::now()->subDays($i);
+            $day = Carbon::now()->subDays($i);
             $labels[] = $day->translatedFormat('D d/m');
-            $data[]   = (float) Paiement::query()
+            $data[] = (float) Paiement::query()
                 ->whereDate('payment_date', $day->toDateString())
                 ->sum('amount');
         }
@@ -112,7 +119,7 @@ class AccueilController extends Controller
 
         return [
             'labels' => $rows->pluck('type_label')->toArray(),
-            'data'   => $rows->pluck('count')->map(fn ($v) => (int) $v)->toArray(),
+            'data' => $rows->pluck('count')->map(fn ($v) => (int) $v)->toArray(),
         ];
     }
 }

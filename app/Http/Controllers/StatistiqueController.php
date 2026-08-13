@@ -21,7 +21,7 @@ class StatistiqueController extends Controller
         $since30Days = Carbon::now()->subDays(30);
 
         $totalParticipantesActives = Participante::query()->where('status', 'active')->count();
-        $totalRevenus30Jours       = (float) Paiement::query()
+        $totalRevenus30Jours = (float) Paiement::query()
             ->where('payment_date', '>=', $since30Days)
             ->sum('amount');
 
@@ -31,7 +31,7 @@ class StatistiqueController extends Controller
             ->get();
 
         $challengesParTypeLabels = $challengeTypes->pluck('label')->toArray();
-        $challengesParTypeData   = $challengeTypes->pluck('challenges_count')->toArray();
+        $challengesParTypeData = $challengeTypes->pluck('challenges_count')->toArray();
 
         $paiementsTrendRaw = Paiement::query()
             ->select(DB::raw('DATE(payment_date) as date'), DB::raw('SUM(amount) as total'))
@@ -41,14 +41,14 @@ class StatistiqueController extends Controller
             ->get();
 
         $paiementsTrendLabels = [];
-        $paiementsTrendData   = [];
-        $period               = Carbon::now()->subDays(29);
+        $paiementsTrendData = [];
+        $period = Carbon::now()->subDays(29);
 
         for ($i = 0; $i < 30; $i++) {
-            $dateStr                = $period->format('Y-m-d');
+            $dateStr = $period->format('Y-m-d');
             $paiementsTrendLabels[] = $period->format('d/m');
-            $row                    = $paiementsTrendRaw->firstWhere('date', $dateStr);
-            $paiementsTrendData[]   = $row ? (float) $row->total : 0.0;
+            $row = $paiementsTrendRaw->firstWhere('date', $dateStr);
+            $paiementsTrendData[] = $row ? (float) $row->total : 0.0;
             $period->addDay();
         }
 
@@ -62,7 +62,7 @@ class StatistiqueController extends Controller
             ->get();
 
         $topChallengeTypesLabels = $topChallengeTypesRaw->pluck('label')->toArray();
-        $topChallengeTypesData   = $topChallengeTypesRaw->pluck('total')->map(fn ($v) => (int) $v)->toArray();
+        $topChallengeTypesData = $topChallengeTypesRaw->pluck('total')->map(fn ($v) => (int) $v)->toArray();
 
         $challengesImpayes = Challenge::query()
             ->with(['participante', 'challengeType'])

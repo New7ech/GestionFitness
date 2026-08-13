@@ -7,6 +7,7 @@ use App\Enums\PaymentMode;
 use App\Enums\PaymentType;
 use App\Models\Challenge;
 use App\Models\ChallengeType;
+use App\Models\Inscription;
 use App\Models\Paiement;
 use App\Models\Participante;
 use App\Models\User;
@@ -34,18 +35,15 @@ class ChallengeManagementTest extends TestCase
     public function manager_peut_creer_un_challenge_avec_date_de_fin_calculee(): void
     {
         $manager = $this->manager();
-        $participante = Participante::factory()->create();
         $challengeType = ChallengeType::query()->where('code', 'perte_de_poids')->firstOrFail();
 
         $response = $this->actingAs($manager)->post(route('challenges.store'), [
-            'participante_id' => $participante->id,
             'challenge_type_id' => $challengeType->id,
             'start_date' => '2026-08-10',
             'duration_days' => 15,
             'status' => 'planifie',
-            'price' => 30000,
-            'goal_weight' => 70,
-            'goal_waist' => 85,
+            'capacite' => 10,
+            'default_price' => 30000,
         ]);
 
         $challenge = Challenge::query()->firstOrFail();
@@ -60,16 +58,13 @@ class ChallengeManagementTest extends TestCase
     public function duree_du_challenge_est_validee_depuis_la_config(): void
     {
         $manager = $this->manager();
-        $participante = Participante::factory()->create();
         $challengeType = ChallengeType::query()->where('code', 'perte_de_poids')->firstOrFail();
 
         $response = $this->actingAs($manager)->post(route('challenges.store'), [
-            'participante_id' => $participante->id,
             'challenge_type_id' => $challengeType->id,
             'start_date' => '2026-08-10',
             'duration_days' => 14,
             'status' => 'planifie',
-            'price' => 30000,
         ]);
 
         $response->assertSessionHasErrors('duration_days');
@@ -96,17 +91,24 @@ class ChallengeManagementTest extends TestCase
         ]);
         $challengeType = ChallengeType::query()->where('code', 'diastasis')->firstOrFail();
 
-        Challenge::factory()->create([
-            'participante_id' => $participante->id,
+        $c1 = Challenge::factory()->create([
             'challenge_type_id' => $challengeType->id,
             'start_date' => '2026-08-01',
             'duration_days' => 15,
         ]);
-        Challenge::factory()->create([
-            'participante_id' => $participante->id,
+        $c2 = Challenge::factory()->create([
             'challenge_type_id' => $challengeType->id,
             'start_date' => '2026-09-01',
             'duration_days' => 30,
+        ]);
+
+        Inscription::factory()->create([
+            'participante_id' => $participante->id,
+            'challenge_id' => $c1->id,
+        ]);
+        Inscription::factory()->create([
+            'participante_id' => $participante->id,
+            'challenge_id' => $c2->id,
         ]);
 
         $response = $this->actingAs($manager)->get(route('participantes.show', $participante));
@@ -124,10 +126,12 @@ class ChallengeManagementTest extends TestCase
         $challenge = Challenge::factory()->create([
             'start_date' => '2026-08-10',
             'duration_days' => 15,
-            'price' => 30000,
+        ]);
+        $inscription = Inscription::factory()->create([
+            'challenge_id' => $challenge->id,
         ]);
         Paiement::query()->create([
-            'challenge_id' => $challenge->id,
+            'inscription_id' => $inscription->id,
             'amount' => 10000,
             'type' => PaymentType::Paiement,
             'payment_date' => '2026-08-10',
@@ -136,12 +140,10 @@ class ChallengeManagementTest extends TestCase
         ]);
 
         $payload = [
-            'participante_id' => $challenge->participante_id,
             'challenge_type_id' => $challenge->challenge_type_id,
             'start_date' => '2026-08-10',
             'duration_days' => 30,
             'status' => $challenge->status->value,
-            'price' => 30000,
         ];
 
         $this->actingAs($manager)

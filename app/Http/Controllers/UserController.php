@@ -126,4 +126,3 @@ class UserController extends Controller
             ->with('success', 'Utilisateur supprimé avec succès.');
     }
 }
-

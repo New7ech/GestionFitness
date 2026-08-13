@@ -34,6 +34,18 @@ class Presence extends Model
         return $this->belongsTo(Inscription::class);
     }
 
+    public function challenge(): \Illuminate\Database\Eloquent\Relations\HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Challenge::class,
+            Inscription::class,
+            'id',
+            'id',
+            'inscription_id',
+            'challenge_id'
+        );
+    }
+
     public function recordedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recorded_by');

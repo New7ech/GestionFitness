@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\InscriptionStatus;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreInscriptionRequest extends FormRequest
 {
